@@ -39,7 +39,6 @@
     flex-shrink: 0;
     box-sizing: border-box;
     position: relative;
-    z-index: 80;
     transition: var(--transition);
 }
 
@@ -338,7 +337,7 @@
     align-items: center;
     width: 100%;
     box-sizing: border-box;
-    z-index: 75;
+    position: relative;
     gap: 4px 6px;
     transition: var(--transition);
 }
@@ -512,6 +511,8 @@ body.plain-text-mode #btn-mobile-format,
 body.plain-text-mode #mobile-format-sheet {
     display: none !important;
 }
+
+/* In plain text mode, remaining toolbars (e.g. paint-bar) sit directly below title bar */
 
 body.plain-text-mode:not(.paint-active) #paint-bar:not(.active) {
     display: none !important;

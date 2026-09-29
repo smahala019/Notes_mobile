@@ -303,6 +303,7 @@ function applyModeDisplay(toRich) {
         document.querySelectorAll('.tool-btn').forEach(btn => btn.disabled = true);
     }
     applyWordWrapState();
+    if (typeof updateWatermarkLayout === 'function') updateWatermarkLayout();
 }
 
 function setMode(toRich, internalSave = true) {
@@ -386,6 +387,10 @@ function loadFileContent(id) {
     // 3. Immediately inject the target file's dedicated content into BOTH editors
     richEditor.innerHTML = targetFile.content || "";
     plainEditor.value = targetFile.textContent || stripHtml(targetFile.content || "");
+    // Auto-grow textarea to match content (so page scrollbar is used, not editor internal scroll)
+    if (typeof window.autoGrowPlainEditor === 'function') {
+        window.autoGrowPlainEditor(plainEditor);
+    }
 
     // 4. Initialize independent undo stacks for this file
     AppState.undoStack = [plainEditor.value];
@@ -440,8 +445,10 @@ function loadFileContent(id) {
         if (editorArea) editorArea.setAttribute('data-watermark', targetFile.watermark);
         if (wmEl) {
             wmEl.textContent = targetFile.watermark;
+            wmEl.setAttribute('data-watermark', targetFile.watermark);
             wmEl.style.display = 'block';
         }
+        if (typeof updateWatermarkLayout === 'function') updateWatermarkLayout();
         if (wmBtn) wmBtn.classList.add('active');
     } else {
         document.body.classList.remove('watermarked');
@@ -453,7 +460,9 @@ function loadFileContent(id) {
         if (editorArea) editorArea.removeAttribute('data-watermark');
         if (wmEl) {
             wmEl.textContent = '';
+            wmEl.removeAttribute('data-watermark');
             wmEl.style.display = 'none';
+            wmEl.innerHTML = '';
         }
         if (wmBtn) wmBtn.classList.remove('active');
     }
@@ -1736,13 +1745,30 @@ function initMobileTextSelector() {
     }
 
     // Synchronize handles on editor scroll and selectionchange
+    let scrollSelectorDebounce = null;
+    const onScrollHideHandles = () => {
+        // Immediately hide handles and blue dot while scrolling
+        const c = document.getElementById('mobile-selector-container');
+        if (c) c.style.display = 'none';
+        if (startHandle) startHandle.style.display = 'none';
+        if (endHandle) endHandle.style.display = 'none';
+        if (toolbar) toolbar.style.display = 'none';
+
+        if (scrollSelectorDebounce) clearTimeout(scrollSelectorDebounce);
+        scrollSelectorDebounce = setTimeout(() => {
+            if (isMobileSelectorActive && !activeDragHandle) {
+                updateMobileSelectorHandles();
+            }
+        }, 120);
+    };
+
+    // Listen on window for vertical page scroll
+    window.addEventListener('scroll', onScrollHideHandles, { passive: true });
+
+    // Listen on individual elements for horizontal scroll (no-wrap mode)
     [richEditor, plainEditor, editorArea].forEach(el => {
         if (el) {
-            el.addEventListener('scroll', () => {
-                if (isMobileSelectorActive && !activeDragHandle) {
-                    updateMobileSelectorHandles();
-                }
-            }, { passive: true });
+            el.addEventListener('scroll', onScrollHideHandles, { passive: true });
             el.addEventListener('mouseup', handleSelectionAutoShow);
             el.addEventListener('touchend', handleSelectionAutoShow);
             el.addEventListener('keyup', handleSelectionAutoShow);
@@ -1817,11 +1843,12 @@ function startEdgeAutoScroll() {
             return;
         }
 
-        const editorArea = document.getElementById('editor-area');
         const activeEd = getCurrentEditor();
 
-        if (editorArea) editorArea.scrollTop += edgeAutoScrollSpeed;
-        if (activeEd && activeEd !== editorArea) activeEd.scrollTop += edgeAutoScrollSpeed;
+        // Vertical scroll is now on window (page scrollbar), not the editor-area container
+        window.scrollBy(0, edgeAutoScrollSpeed);
+        // Horizontal scroll (no-wrap mode) still lives on the active editor element
+        if (activeEd) activeEd.scrollLeft += (edgeAutoScrollSpeed > 0 ? 0 : 0); // no-op for vertical
 
         // As text scrolls underneath the finger, update the selection caret
         applyDragCoordinatesToSelection(lastTouchX, lastTouchY);
@@ -1970,42 +1997,12 @@ function updateMobileSelectorHandles() {
         let startX, startY, endX, endY;
 
         if (range.collapsed) {
-            // Precise caret coordinates via temporary zero-width character span
-            let r = null;
-            const rects = range.getClientRects();
-            if (rects.length > 0 && (rects[0].width > 0 || rects[0].height > 0)) {
-                r = rects[0];
-            } else {
-                const span = document.createElement('span');
-                span.appendChild(document.createTextNode('\u200b'));
-                const tempRange = range.cloneRange();
-                tempRange.insertNode(span);
-                r = span.getBoundingClientRect();
-                if (span.parentNode) span.parentNode.removeChild(span);
-            }
-
-            if (r && (r.left > 0 || r.top > 0)) {
-                startX = r.left;
-                startY = r.top;
-                endX = r.right || (r.left + 2);
-                endY = r.bottom || (r.top + 20);
-            } else {
-                const node = range.startContainer;
-                const elem = (node && node.nodeType === Node.ELEMENT_NODE) ? node : (node ? node.parentElement : null);
-                if (elem && elem !== richEditor && richEditor.contains(elem)) {
-                    const eRect = elem.getBoundingClientRect();
-                    startX = eRect.left;
-                    startY = eRect.top;
-                    endX = eRect.right;
-                    endY = eRect.bottom;
-                } else {
-                    const edRect = richEditor.getBoundingClientRect();
-                    startX = edRect.left + 48;
-                    startY = edRect.top + 48;
-                    endX = startX + 2;
-                    endY = startY + 20;
-                }
-            }
+            startHandle.style.display = 'none';
+            endHandle.style.display = 'none';
+            toolbar.style.display = 'none';
+            const c = document.getElementById('mobile-selector-container');
+            if (c) c.style.display = 'none';
+            return;
         } else {
             const rects = range.getClientRects();
             if (rects.length > 0) {
@@ -2029,7 +2026,14 @@ function updateMobileSelectorHandles() {
     } else {
         // Plain text textarea handles based on selectionStart / selectionEnd
         const ed = document.getElementById('plain-editor');
-        if (!ed) return;
+        if (!ed || ed.selectionEnd <= ed.selectionStart) {
+            startHandle.style.display = 'none';
+            endHandle.style.display = 'none';
+            toolbar.style.display = 'none';
+            const c = document.getElementById('mobile-selector-container');
+            if (c) c.style.display = 'none';
+            return;
+        }
 
         const edRect = ed.getBoundingClientRect();
         const textBefore = ed.value.substring(0, ed.selectionStart);
@@ -2049,14 +2053,12 @@ function updateMobileSelectorHandles() {
         let endX = startX + 2;
         let endY = startY + lineHeight;
 
-        if (ed.selectionEnd > ed.selectionStart) {
-            const selectedText = ed.value.substring(ed.selectionStart, ed.selectionEnd);
-            const selLines = selectedText.split('\n');
-            const endLineIdx = lineIdx + selLines.length - 1;
-            const endColIdx = (selLines.length === 1 ? colIdx : 0) + selLines[selLines.length - 1].length;
-            endX = edRect.left + padLeft + (endColIdx * charWidth) - ed.scrollLeft;
-            endY = edRect.top + padTop + (endLineIdx * lineHeight) - ed.scrollTop;
-        }
+        const selectedText = ed.value.substring(ed.selectionStart, ed.selectionEnd);
+        const selLines = selectedText.split('\n');
+        const endLineIdx = lineIdx + selLines.length - 1;
+        const endColIdx = (selLines.length === 1 ? colIdx : 0) + selLines[selLines.length - 1].length;
+        endX = edRect.left + padLeft + (endColIdx * charWidth) - ed.scrollLeft;
+        endY = edRect.top + padTop + (endLineIdx * lineHeight) - ed.scrollTop;
 
         positionHandles(startX, startY, endX, endY, areaRect, startHandle, endHandle, toolbar);
     }
@@ -2065,35 +2067,58 @@ function updateMobileSelectorHandles() {
 function positionHandles(startX, startY, endX, endY, areaRect, startHandle, endHandle, toolbar) {
     const editorArea = document.getElementById('editor-area');
     const scrollLeft = editorArea ? editorArea.scrollLeft : 0;
-    const scrollTop = editorArea ? editorArea.scrollTop : 0;
 
-    startHandle.style.display = 'flex';
-    endHandle.style.display = 'flex';
-    toolbar.style.display = 'flex';
+    // Completely hide handles if scrolled out of visible viewport or behind fixed top header / bottom status bar
+    const headerEl = document.getElementById('app-header') || document.querySelector('.title-bar');
+    const headerBottom = headerEl ? headerEl.getBoundingClientRect().bottom : 74;
+    const viewportTop = headerBottom + 4;
+    const viewportBottom = window.innerHeight - 34; // above fixed status bar
+    const isAboveViewport = (startY < viewportTop) && (endY < viewportTop);
+    const isBelowViewport = (startY > viewportBottom) && (endY > viewportBottom);
 
-    // Position Start Handle: handle-line touches start point (startX, startY)
-    const relStartX = (startX - areaRect.left) + scrollLeft - 16;
-    const relStartY = (startY - areaRect.top) + scrollTop;
-    startHandle.style.left = `${Math.max(4, relStartX)}px`;
-    startHandle.style.top = `${Math.max(4, relStartY)}px`;
-
-    // Position End Handle: handle-line touches end point (endX, endY)
-    const relEndX = (endX - areaRect.left) + scrollLeft - 16;
-    const relEndY = (endY - areaRect.top) + scrollTop - 20;
-    endHandle.style.left = `${Math.max(4, relEndX)}px`;
-    endHandle.style.top = `${Math.max(4, relEndY)}px`;
-
-    // Position Floating Action Toolbar centered horizontally above selection
-    const tbWidth = toolbar.offsetWidth || 260;
-    const centerX = ((startX + endX) / 2 - areaRect.left) + scrollLeft - (tbWidth / 2);
-    let toolbarY = (startY - areaRect.top) + scrollTop - 48;
-
-    if (toolbarY < 10) {
-        toolbarY = (endY - areaRect.top) + scrollTop + 28;
+    if (isAboveViewport || isBelowViewport) {
+        startHandle.style.display = 'none';
+        endHandle.style.display = 'none';
+        toolbar.style.display = 'none';
+        return;
     }
 
-    toolbar.style.left = `${Math.max(8, centerX)}px`;
-    toolbar.style.top = `${Math.max(8, toolbarY)}px`;
+    // Hide start handle if it scrolled above visible area or behind header
+    if (startY < viewportTop) {
+        startHandle.style.display = 'none';
+    } else {
+        startHandle.style.display = 'flex';
+        const relStartX = (startX - areaRect.left) + scrollLeft - 16;
+        const relStartY = (startY - areaRect.top);
+        startHandle.style.left = `${relStartX}px`;
+        startHandle.style.top = `${relStartY}px`;
+    }
+
+    // Hide end handle if it scrolled above visible area or behind header
+    if (endY < viewportTop) {
+        endHandle.style.display = 'none';
+    } else {
+        endHandle.style.display = 'flex';
+        const relEndX = (endX - areaRect.left) + scrollLeft - 16;
+        const relEndY = (endY - areaRect.top) - 20;
+        endHandle.style.left = `${relEndX}px`;
+        endHandle.style.top = `${relEndY}px`;
+    }
+
+    // Position or hide Floating Action Toolbar
+    if (startY < viewportTop + 24) {
+        toolbar.style.display = 'none';
+    } else {
+        toolbar.style.display = 'flex';
+        const tbWidth = toolbar.offsetWidth || 260;
+        const centerX = ((startX + endX) / 2 - areaRect.left) + scrollLeft - (tbWidth / 2);
+        let toolbarY = (startY - areaRect.top) - 48;
+        if (toolbarY < 10) {
+            toolbarY = (endY - areaRect.top) + 28;
+        }
+        toolbar.style.left = `${Math.max(8, centerX)}px`;
+        toolbar.style.top = `${Math.max(8, toolbarY)}px`;
+    }
 }
 
 // Helper: Select Word under caret
@@ -3071,10 +3096,10 @@ function positionTableToolbar(table, cell) {
     const targetRect = cellOrTable.getBoundingClientRect();
     const areaRect = editorArea.getBoundingClientRect();
 
-    let top = (targetRect.top - areaRect.top) + editorArea.scrollTop - 44;
+    let top = (targetRect.top - areaRect.top) - 44;
     let left = (targetRect.left - areaRect.left) + editorArea.scrollLeft;
 
-    if (top < 10) top = (targetRect.bottom - areaRect.top) + editorArea.scrollTop + 8;
+    if (top < 10) top = (targetRect.bottom - areaRect.top) + 8;
     if (left + toolbar.offsetWidth > areaRect.width - 20) {
         left = Math.max(10, areaRect.width - toolbar.offsetWidth - 20);
     }
@@ -4045,10 +4070,10 @@ function positionShapeToolbar(wrapper) {
     const rect = wrapper.getBoundingClientRect();
     const areaRect = editorArea.getBoundingClientRect();
 
-    let top = (rect.top - areaRect.top) + editorArea.scrollTop - 44;
+    let top = (rect.top - areaRect.top) - 44;
     let left = (rect.left - areaRect.left) + editorArea.scrollLeft;
 
-    if (top < 10) top = (rect.bottom - areaRect.top) + editorArea.scrollTop + 8;
+    if (top < 10) top = (rect.bottom - areaRect.top) + 8;
     if (left + toolbar.offsetWidth > areaRect.width - 20) {
         left = Math.max(10, areaRect.width - toolbar.offsetWidth - 20);
     }
@@ -4991,6 +5016,7 @@ function executeDirectPrint(paperSize = 'a4', margin = 'normal', orientation = '
     const originalTitle = document.title;
     document.title = "";
 
+    if (typeof updateWatermarkLayout === 'function') updateWatermarkLayout();
     document.body.classList.add('is-printing');
 
     const cleanUpAfterPrint = () => {
@@ -5188,6 +5214,86 @@ function insertCodeBlock() {
     }
 }
 
+function updateWatermarkLayout() {
+    const wmEl = document.getElementById('document-watermark');
+    if (!wmEl) return;
+
+    const richEditor = document.getElementById('rich-editor');
+    const plainEditor = document.getElementById('plain-editor');
+    const editorArea = document.getElementById('editor-area');
+
+    const isWatermarked = document.body.classList.contains('watermarked') || 
+                          (richEditor && richEditor.classList.contains('watermarked')) ||
+                          (plainEditor && plainEditor.classList.contains('watermarked')) ||
+                          (editorArea && editorArea.classList.contains('watermarked'));
+
+    if (!isWatermarked) {
+        wmEl.style.display = 'none';
+        wmEl.innerHTML = '';
+        return;
+    }
+
+    const activeEditor = AppState.isRichTextMode ? richEditor : plainEditor;
+    if (!activeEditor || !editorArea) return;
+
+    const wmText = (wmEl.getAttribute('data-watermark') || 
+                    (richEditor && richEditor.getAttribute('data-watermark')) || 
+                    (plainEditor && plainEditor.getAttribute('data-watermark')) || 
+                    (wmEl.textContent && wmEl.textContent.trim()) ||
+                    "CONFIDENTIAL").toUpperCase();
+
+    // Determine the true single-page base height of active editor (e.g. 297mm for A4 = ~1123px)
+    const isLandscape = activeEditor.classList.contains('landscape-mode');
+    let pageHeight = 1123;
+    try {
+        const computedMin = parseFloat(window.getComputedStyle(activeEditor).minHeight);
+        if (computedMin && computedMin > 300) {
+            pageHeight = computedMin;
+        } else {
+            pageHeight = isLandscape ? 794 : 1123;
+        }
+    } catch (e) {
+        pageHeight = isLandscape ? 794 : 1123;
+    }
+
+    // Measure total document content height
+    const currentHeight = Math.max(activeEditor.scrollHeight, activeEditor.offsetHeight);
+
+    // Accurately determine page count: exactly 1 page unless content significantly exceeds base single page
+    const numPages = currentHeight <= (pageHeight + 60)
+        ? 1
+        : Math.max(1, Math.ceil((currentHeight - 40) / pageHeight));
+
+    wmEl.style.display = 'block';
+    wmEl.style.height = `${numPages * pageHeight}px`;
+
+    // Horizontal center relative to active editor
+    const centerX = activeEditor.offsetLeft + (activeEditor.offsetWidth / 2);
+    const offsetTop = activeEditor.offsetTop || 16;
+
+    // Build screen watermark items:
+    // Exactly 2 watermark names per page (one top half at 28%, one bottom half at 72%)
+    // Strictly NO watermarks outside page boundaries
+    let screenItemsHtml = '<div class="watermark-screen-layer" aria-hidden="true">';
+    for (let p = 0; p < numPages; p++) {
+        const top1 = Math.round(offsetTop + p * pageHeight + pageHeight * 0.28);
+        const top2 = Math.round(offsetTop + p * pageHeight + pageHeight * 0.72);
+        screenItemsHtml += `<div class="watermark-item" style="top:${top1}px; left:${centerX}px;">${escapeHtml(wmText)}</div>`;
+        screenItemsHtml += `<div class="watermark-item" style="top:${top2}px; left:${centerX}px;">${escapeHtml(wmText)}</div>`;
+    }
+    screenItemsHtml += '</div>';
+
+    // Build print layer: 2 watermarks per printed page using CSS fixed pagination
+    const printLayerHtml = `
+        <div class="watermark-print-layer" aria-hidden="true">
+            <div class="watermark-print-item watermark-print-top">${escapeHtml(wmText)}</div>
+            <div class="watermark-print-item watermark-print-bottom">${escapeHtml(wmText)}</div>
+        </div>
+    `;
+
+    wmEl.innerHTML = printLayerHtml + screenItemsHtml;
+}
+
 function toggleWatermark() {
     const richEditor = document.getElementById('rich-editor');
     const plainEditor = document.getElementById('plain-editor');
@@ -5207,9 +5313,9 @@ function toggleWatermark() {
     const isWatermarked = document.body.classList.contains('watermarked') || 
                           richEditor.classList.contains('watermarked') || 
                           (editorArea && editorArea.classList.contains('watermarked')) ||
-                          (wmEl && wmEl.style.display !== 'none' && wmEl.textContent.trim().length > 0);
+                          (wmEl && wmEl.style.display !== 'none' && (wmEl.getAttribute('data-watermark') || wmEl.textContent.trim().length > 0));
 
-    const currentText = (wmEl && wmEl.textContent.trim()) || 
+    const currentText = (wmEl && (wmEl.getAttribute('data-watermark') || wmEl.textContent.trim())) || 
                         richEditor.getAttribute('data-watermark') || 
                         "CONFIDENTIAL";
 
@@ -5223,7 +5329,9 @@ function toggleWatermark() {
         if (editorArea) editorArea.removeAttribute('data-watermark');
         if (wmEl) {
             wmEl.textContent = '';
+            wmEl.removeAttribute('data-watermark');
             wmEl.style.display = 'none';
+            wmEl.innerHTML = '';
         }
         if (wmBtn) wmBtn.classList.remove('active');
         saveCurrentStateToMemory();
@@ -5246,8 +5354,11 @@ function toggleWatermark() {
 
             if (wmEl) {
                 wmEl.textContent = upperWm;
+                wmEl.setAttribute('data-watermark', upperWm);
                 wmEl.style.display = 'block';
             }
+            updateWatermarkLayout();
+
             if (wmBtn) wmBtn.classList.add('active');
             saveCurrentStateToMemory();
             showToast(`Watermark applied: "${upperWm}"`);
@@ -5457,6 +5568,7 @@ function changePaperSize(val) {
         full: 'Full Width (Window)'
     };
     showToast(`Paper size: ${labels[valClean] || valClean}`);
+    if (typeof updateWatermarkLayout === 'function') updateWatermarkLayout();
     saveCurrentStateToMemory();
 }
 
@@ -5480,6 +5592,7 @@ function toggleOrientation() {
         if (orientBtn) orientBtn.classList.add('active');
         showToast("Orientation: Landscape");
     }
+    if (typeof updateWatermarkLayout === 'function') updateWatermarkLayout();
 }
 
 // --- Animated GIF System (Curated + Live Tenor/GIPHY with Auto-Update) ---

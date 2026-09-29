@@ -37,6 +37,7 @@
     --radius-md: 6px;
     --radius-lg: 10px;
     --transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+    --app-header-height: 122px;
 }
 
 /* --- Dark Theme (High Contrast & Complete Text Visibility) --- */
@@ -131,18 +132,26 @@
     -webkit-tap-highlight-color: transparent;
 }
 
+html {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-padding-top: calc(var(--app-header-height, 122px) + 8px);
+    scroll-padding-bottom: 36px;
+}
+
 body {
     background-color: var(--win-bg);
     color: var(--text-primary);
-    width: 100vw;
-    width: 100dvw;
-    height: 100vh;
-    height: 100dvh;
+    width: 100%;
+    min-height: 100%;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow-x: hidden;
     user-select: none;
     transition: background-color 0.25s ease;
 }
@@ -152,14 +161,15 @@ body {
     background: var(--win-bg);
     border: none;
     box-shadow: none;
-    flex: 1;
+    flex: 1 0 auto;
     display: flex;
     flex-direction: column;
     border-radius: 0;
-    overflow: hidden;
+    overflow: visible;
     max-width: 100%;
     width: 100%;
-    height: 100%;
+    min-height: 100vh;
+    height: auto;
     margin: 0;
     padding: 0;
     position: relative;
@@ -183,16 +193,33 @@ body.maximized {
 .window-frame.minimized {
     flex: 0 0 auto !important;
     height: 40px !important;
+    min-height: 40px !important;
+    overflow: hidden !important;
+}
+
+body:has(.window-frame.minimized) {
+    min-height: 40px !important;
+    overflow: hidden !important;
+}
+
+.window-frame.minimized .app-header {
+    height: 40px !important;
+    overflow: hidden !important;
 }
 
 .window-frame.minimized .editor-container,
 .window-frame.minimized .menu-bar,
 .window-frame.minimized .toolbar,
+.window-frame.minimized .paint-bar,
 .window-frame.minimized .status-bar {
     display: none !important;
 }
 
 /* Plain Text Mode: hide menu-bar, ribbon toolbar and mobile format drawer */
+body.plain-text-mode {
+    --app-header-height: 40px;
+}
+
 body.plain-text-mode #menu-bar,
 body.plain-text-mode #main-toolbar,
 body.plain-text-mode .mobile-format-btn,
@@ -208,6 +235,24 @@ body.plain-text-mode #mobile-format-sheet {
     overflow: hidden !important;
 }
 
+/* --- Application Fixed Header (Fixed at top of viewport) --- */
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    background: var(--win-bg);
+    box-sizing: border-box;
+}
+
+[data-theme="dark"] .app-header {
+    background: var(--win-bg);
+}
+
 /* --- Title Bar --- */
 .title-bar {
     background: var(--header-bg);
@@ -219,7 +264,9 @@ body.plain-text-mode #mobile-format-sheet {
     gap: 8px;
     user-select: none;
     position: relative;
-    z-index: 100;
+    width: 100%;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .new-tab-btn {
@@ -471,9 +518,11 @@ body.plain-text-mode #mobile-format-sheet {
     border-bottom: 1px solid var(--border-color);
     padding: 3px 8px;
     position: relative;
+    width: 100%;
     flex-wrap: wrap;
     align-items: center;
-    z-index: 90;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 .menu-item {
@@ -643,6 +692,8 @@ body.plain-text-mode #mobile-format-sheet {
 }
 
 /* Printing Mode Overrides */
+body.is-printing .app-header,
+body.is-printing #app-header,
 body.is-printing .title-bar,
 body.is-printing .menu-bar,
 body.is-printing .toolbar,
@@ -664,10 +715,12 @@ body.is-printing #toast {
     body {
         height: auto !important;
         overflow: visible !important;
+        min-height: unset !important;
     }
 
     .window-frame {
         height: auto !important;
         overflow: visible !important;
+        min-height: unset !important;
     }
 }

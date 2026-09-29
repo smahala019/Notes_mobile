@@ -256,6 +256,9 @@ function initMenuEvents() {
         }
     });
 
+    // Close open dropdowns when scrolling the page
+    window.addEventListener('scroll', closeAllDropdowns, { passive: true });
+
     // Close dropdowns when clicking on any menu-option
     document.querySelectorAll('.menu-option, .dot-option').forEach(opt => {
         opt.addEventListener('click', () => {

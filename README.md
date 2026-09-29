@@ -117,3 +117,6 @@ Designed and developed with dedication by **Sachin**.
 All Rights Reserved © 2026.
 
 # Notes_mobile
+
+
+<!-- all are correct but the last point of the editor  page goes beyound the toolbar so make it coorect so it not goes beyound and it stop at status bar when user scroll top but not for content typing or pasting -->

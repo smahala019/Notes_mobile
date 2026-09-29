@@ -72,6 +72,8 @@
     }
 
     /* Hide ALL application chrome, toolbars, menus, controls, and floating toolbars */
+    .app-header,
+    #app-header,
     .title-bar,
     .menu-bar,
     .toolbar,
@@ -235,7 +237,7 @@
         outline: none !important;
     }
 
-    /* Document Watermark Print Control */
+    /* Document Watermark Print Control (2 watermark names per page in print) */
     .document-watermark,
     #document-watermark {
         display: none !important;
@@ -247,19 +249,56 @@
     #editor-area.watermarked #document-watermark {
         display: block !important;
         position: fixed !important;
-        top: 50% !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        pointer-events: none !important;
+        z-index: 9999 !important;
+    }
+
+    body.watermarked .watermark-screen-layer,
+    #editor-area.watermarked .watermark-screen-layer {
+        display: none !important;
+    }
+
+    body.watermarked .watermark-print-layer,
+    #editor-area.watermarked .watermark-print-layer {
+        display: block !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        pointer-events: none !important;
+    }
+
+    body.watermarked .watermark-print-item,
+    #editor-area.watermarked .watermark-print-item {
+        display: block !important;
+        position: fixed !important;
         left: 50% !important;
         transform: translate(-50%, -50%) rotate(-35deg) !important;
-        font-size: 6rem !important;
+        font-size: 4.8rem !important;
         font-weight: 800 !important;
-        color: rgba(120, 120, 120, 0.20) !important;
+        color: rgba(120, 120, 120, 0.18) !important;
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
-        z-index: 9999 !important;
-        letter-spacing: 12px !important;
+        letter-spacing: 10px !important;
         text-transform: uppercase !important;
         white-space: nowrap !important;
+        text-align: center !important;
         user-select: none !important;
         pointer-events: none !important;
+    }
+
+    body.watermarked .watermark-print-top,
+    #editor-area.watermarked .watermark-print-top {
+        top: 28% !important;
+    }
+
+    body.watermarked .watermark-print-bottom,
+    #editor-area.watermarked .watermark-print-bottom {
+        top: 72% !important;
     }
 }

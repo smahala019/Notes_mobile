@@ -32,6 +32,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (typeof applyWordWrapState === 'function') applyWordWrapState();
     if (typeof initAccessibilityTooltips === 'function') initAccessibilityTooltips();
     if (typeof changePaperSize === 'function') changePaperSize('a4');
+    initAppHeaderObserver();
 
     // Auto-update year in status bar and about modal
     const currentYear = new Date().getFullYear();
@@ -97,7 +98,42 @@ function initEditorEvents() {
         if (!AppState.isWordWrap && typeof ensureCaretVisible === 'function') {
             ensureCaretVisible();
         }
+        if (document.body.classList.contains('watermarked') && typeof updateWatermarkLayout === 'function') {
+            if (window.__wmDebounceTimer) clearTimeout(window.__wmDebounceTimer);
+            window.__wmDebounceTimer = setTimeout(() => {
+                updateWatermarkLayout();
+            }, 250);
+        }
+        // Auto-grow plain-editor textarea (fallback for browsers without field-sizing: content)
+        if (!AppState.isRichTextMode && plainEditor) {
+            autoGrowPlainEditor(plainEditor);
+        }
     };
+
+    // Auto-grow plain-editor: expand height to match content so page scrollbar is used
+    function autoGrowPlainEditor(ed) {
+        // Temporarily shrink to measure real scrollHeight
+        ed.style.height = 'auto';
+        const minH = parseFloat(window.getComputedStyle(ed).minHeight) || 800;
+        ed.style.height = `${Math.max(minH, ed.scrollHeight)}px`;
+    }
+    // Expose for external callers (e.g. loadFileContent)
+    window.autoGrowPlainEditor = autoGrowPlainEditor;
+
+    if (typeof ResizeObserver !== 'undefined') {
+        const wmResizeObserver = new ResizeObserver(() => {
+            if (document.body.classList.contains('watermarked') && typeof updateWatermarkLayout === 'function') {
+                updateWatermarkLayout();
+            }
+        });
+        if (richEditor) wmResizeObserver.observe(richEditor);
+        if (plainEditor) wmResizeObserver.observe(plainEditor);
+    }
+    window.addEventListener('resize', () => {
+        if (document.body.classList.contains('watermarked') && typeof updateWatermarkLayout === 'function') {
+            updateWatermarkLayout();
+        }
+    });
 
     [richEditor, plainEditor].forEach(ed => {
         ed.addEventListener('input', onInputHandler);
@@ -463,6 +499,31 @@ function initEditorEvents() {
             handleFileOpen(e.dataTransfer.files[0]);
         }
     });
+}
+
+// Dynamic header height synchronization so editor-container padding-top matches header height exactly
+function initAppHeaderObserver() {
+    const appHeader = document.getElementById('app-header');
+    if (!appHeader) return;
+
+    const updateHeight = () => {
+        const height = appHeader.offsetHeight;
+        if (height > 0) {
+            document.documentElement.style.setProperty('--app-header-height', `${height}px`);
+        }
+    };
+
+    updateHeight();
+
+    if (typeof ResizeObserver !== 'undefined') {
+        const ro = new ResizeObserver(() => {
+            updateHeight();
+        });
+        ro.observe(appHeader);
+    }
+
+    window.addEventListener('resize', updateHeight, { passive: true });
+    window.updateAppHeaderHeight = updateHeight;
 }
 
 // --- Toolbar Events & Mobile Drawer (Fixed BUG-11: No Duplicate IDs) ---
@@ -841,6 +902,8 @@ function initModalEvents() {
         if (plainEd && mirror) {
             mirror.textContent = plainEd.value;
         }
+
+        if (typeof updateWatermarkLayout === 'function') updateWatermarkLayout();
 
         // Close dropdowns and floating toolbars
         if (typeof hideAllFloatingToolbars === 'function') hideAllFloatingToolbars();
