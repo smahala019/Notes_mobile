@@ -833,6 +833,33 @@ function initModalEvents() {
         }
     });
 
+    // Global Print Preparation: Suppress file name / time, sync plain text mirror, hide UI chrome
+    window.addEventListener('beforeprint', () => {
+        // Sync plain editor text to plain-print-mirror for clean pagination
+        const plainEd = document.getElementById('plain-editor');
+        const mirror = document.getElementById('plain-print-mirror');
+        if (plainEd && mirror) {
+            mirror.textContent = plainEd.value;
+        }
+
+        // Close dropdowns and floating toolbars
+        if (typeof hideAllFloatingToolbars === 'function') hideAllFloatingToolbars();
+        if (typeof closeAllModals === 'function') closeAllModals();
+        if (typeof closeAllDropdowns === 'function') closeAllDropdowns();
+
+        // Temporarily blank document.title so no file name or time is rendered in print header
+        window.__savedPrintDocTitle = document.title;
+        document.title = "";
+        document.body.classList.add('is-printing');
+    });
+
+    window.addEventListener('afterprint', () => {
+        if (typeof window.__savedPrintDocTitle !== 'undefined') {
+            document.title = window.__savedPrintDocTitle;
+        }
+        document.body.classList.remove('is-printing');
+    });
+
     // Wire Clear Storage & File Inputs
     const fileInput = document.getElementById('file-input');
     if (fileInput) {

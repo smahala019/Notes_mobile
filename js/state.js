@@ -404,6 +404,8 @@ function saveCurrentStateToMemory(showVisual = false) {
         family: richEditor.style.fontFamily || "'Segoe UI', sans-serif",
         size: richEditor.style.fontSize || "16px"
     };
+    const isWm = document.body.classList.contains('watermarked') || richEditor.classList.contains('watermarked');
+    AppState.files[fileIndex].watermark = isWm ? (richEditor.getAttribute('data-watermark') || "CONFIDENTIAL") : null;
     AppState.files[fileIndex].order = fileIndex;
     AppState.files[fileIndex].updatedAt = Date.now();
 

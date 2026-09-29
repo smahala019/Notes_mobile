@@ -426,6 +426,38 @@ function loadFileContent(id) {
         }
     }
 
+    // 9. Synchronize Watermark state
+    const wmEl = document.getElementById('document-watermark');
+    const wmBtn = document.getElementById('tool-watermark');
+    const editorArea = document.getElementById('editor-area');
+    if (targetFile.watermark) {
+        document.body.classList.add('watermarked');
+        richEditor.classList.add('watermarked');
+        if (plainEditor) plainEditor.classList.add('watermarked');
+        if (editorArea) editorArea.classList.add('watermarked');
+        richEditor.setAttribute('data-watermark', targetFile.watermark);
+        if (plainEditor) plainEditor.setAttribute('data-watermark', targetFile.watermark);
+        if (editorArea) editorArea.setAttribute('data-watermark', targetFile.watermark);
+        if (wmEl) {
+            wmEl.textContent = targetFile.watermark;
+            wmEl.style.display = 'block';
+        }
+        if (wmBtn) wmBtn.classList.add('active');
+    } else {
+        document.body.classList.remove('watermarked');
+        richEditor.classList.remove('watermarked');
+        if (plainEditor) plainEditor.classList.remove('watermarked');
+        if (editorArea) editorArea.classList.remove('watermarked');
+        richEditor.removeAttribute('data-watermark');
+        if (plainEditor) plainEditor.removeAttribute('data-watermark');
+        if (editorArea) editorArea.removeAttribute('data-watermark');
+        if (wmEl) {
+            wmEl.textContent = '';
+            wmEl.style.display = 'none';
+        }
+        if (wmBtn) wmBtn.classList.remove('active');
+    }
+
     updateStats();
     updateMenuUI();
     addRecentFile(targetFile);
@@ -4913,11 +4945,18 @@ function executeDirectPrint(paperSize = 'a4', margin = 'normal', orientation = '
     if (typeof closeAllDropdowns === 'function') closeAllDropdowns();
     hideAllFloatingToolbars();
 
+    // Sync plain editor text into plain-print-mirror for multi-page printing in plain mode
+    const plainEd = document.getElementById('plain-editor');
+    const mirror = document.getElementById('plain-print-mirror');
+    if (plainEd && mirror) {
+        mirror.textContent = plainEd.value;
+    }
+
     // 1. Apply chosen paper size and margin to the editor
     if (typeof changePaperSize === 'function') changePaperSize(paperSize);
     if (typeof changeMargin === 'function') changeMargin(margin);
 
-    // 2. Set dynamic @page CSS rule for browser print engine
+    // 2. Set dynamic @page CSS rule for browser print engine with strict 0mm margin to suppress header/footer
     let pageCssSize = paperSize.toUpperCase();
     if (paperSize === 'letter' || paperSize === 'legal' || paperSize === 'executive') {
         pageCssSize = paperSize;
@@ -4937,18 +4976,20 @@ function executeDirectPrint(paperSize = 'a4', margin = 'normal', orientation = '
     printStyleEl.innerHTML = `
         @page {
             size: ${pageCssSize} ${orientation} !important;
-            margin: ${margin === 'none' ? '0mm' : marginCss} !important;
+            margin: 0mm !important; /* Zero margin completely suppresses browser default header (file name) and footer (date & time, URL, page #) */
         }
         @media print {
             body {
-                padding: ${marginCss} !important;
+                margin: 0 !important;
+                padding: ${margin === 'none' ? '0mm' : marginCss} !important;
+                box-sizing: border-box !important;
             }
         }
     `;
 
-    // 3. Temporarily clear document.title so browser headers do not print application name
+    // 3. Clear document.title so browser headers do not print file name or application name
     const originalTitle = document.title;
-    document.title = " ";
+    document.title = "";
 
     document.body.classList.add('is-printing');
 
@@ -5150,44 +5191,73 @@ function insertCodeBlock() {
 function toggleWatermark() {
     const richEditor = document.getElementById('rich-editor');
     const plainEditor = document.getElementById('plain-editor');
+    const editorArea = document.getElementById('editor-area');
+    let wmEl = document.getElementById('document-watermark');
     const wmBtn = document.getElementById('tool-watermark');
     if (!richEditor) return;
-    const isWatermarked = richEditor.classList.contains('watermarked');
-    const currentText = richEditor.getAttribute('data-watermark') || "CONFIDENTIAL";
+
+    if (!wmEl && editorArea) {
+        wmEl = document.createElement('div');
+        wmEl.id = 'document-watermark';
+        wmEl.className = 'document-watermark';
+        wmEl.setAttribute('aria-hidden', 'true');
+        editorArea.appendChild(wmEl);
+    }
+
+    const isWatermarked = document.body.classList.contains('watermarked') || 
+                          richEditor.classList.contains('watermarked') || 
+                          (editorArea && editorArea.classList.contains('watermarked')) ||
+                          (wmEl && wmEl.style.display !== 'none' && wmEl.textContent.trim().length > 0);
+
+    const currentText = (wmEl && wmEl.textContent.trim()) || 
+                        richEditor.getAttribute('data-watermark') || 
+                        "CONFIDENTIAL";
 
     if (isWatermarked) {
+        document.body.classList.remove('watermarked');
         richEditor.classList.remove('watermarked');
         if (plainEditor) plainEditor.classList.remove('watermarked');
+        if (editorArea) editorArea.classList.remove('watermarked');
         richEditor.removeAttribute('data-watermark');
+        if (plainEditor) plainEditor.removeAttribute('data-watermark');
+        if (editorArea) editorArea.removeAttribute('data-watermark');
+        if (wmEl) {
+            wmEl.textContent = '';
+            wmEl.style.display = 'none';
+        }
         if (wmBtn) wmBtn.classList.remove('active');
         saveCurrentStateToMemory();
         showToast("Watermark removed");
     } else {
-        if (typeof showCustomPrompt === 'function') {
-            showCustomPrompt("Enter Watermark Text / Name", currentText, (text) => {
-                const wm = (text || "").trim();
-                if (!wm) {
-                    showToast("Watermark cancelled");
-                    return;
-                }
-                const upperWm = wm.toUpperCase();
-                richEditor.classList.add('watermarked');
-                if (plainEditor) plainEditor.classList.add('watermarked');
-                richEditor.setAttribute('data-watermark', upperWm);
-                if (wmBtn) wmBtn.classList.add('active');
-                saveCurrentStateToMemory();
-                showToast(`Watermark applied: "${upperWm}"`);
-            });
-        } else {
-            const wm = (prompt("Enter Watermark Text / Name:", currentText) || "").trim();
-            if (!wm) return;
+        const applyText = (text) => {
+            const wm = (text || "").trim();
+            if (!wm) {
+                showToast("Watermark cancelled");
+                return;
+            }
             const upperWm = wm.toUpperCase();
+            document.body.classList.add('watermarked');
             richEditor.classList.add('watermarked');
             if (plainEditor) plainEditor.classList.add('watermarked');
+            if (editorArea) editorArea.classList.add('watermarked');
             richEditor.setAttribute('data-watermark', upperWm);
+            if (plainEditor) plainEditor.setAttribute('data-watermark', upperWm);
+            if (editorArea) editorArea.setAttribute('data-watermark', upperWm);
+
+            if (wmEl) {
+                wmEl.textContent = upperWm;
+                wmEl.style.display = 'block';
+            }
             if (wmBtn) wmBtn.classList.add('active');
             saveCurrentStateToMemory();
             showToast(`Watermark applied: "${upperWm}"`);
+        };
+
+        if (typeof showCustomPrompt === 'function') {
+            showCustomPrompt("Enter Watermark Text / Name", currentText, applyText);
+        } else {
+            const wm = (prompt("Enter Watermark Text / Name:", currentText) || "").trim();
+            if (wm) applyText(wm);
         }
     }
 }

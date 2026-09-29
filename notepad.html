@@ -29,6 +29,7 @@
                 <div class="plain-plus-wrapper" id="plain-plus-wrapper">
                     <button class="title-action-btn plain-plus-btn" id="btn-plain-plus" title="Plain Mode Tools">Plain + ▾</button>
                     <div class="plain-plus-menu" id="plain-plus-menu">
+                        <div class="plain-plus-item" id="plain-item-watermark" data-action="toggle-watermark">💧 Watermark</div>
                         <div class="plain-plus-item" id="plain-item-paint" data-action="toggle-paint">🎨 Paint</div>
                         <div class="plain-plus-item" id="plain-item-symbol" data-modal-open="symbol-modal">🔣 Symbol</div>
                         <div class="plain-plus-item" id="plain-item-emoji" data-modal-open="emoji-modal">😊 Emoji</div>
@@ -768,8 +769,10 @@
             </div>
 
             <canvas id="page-paint-canvas" class="page-paint-canvas" style="display:none;"></canvas>
+            <div id="document-watermark" class="document-watermark" aria-hidden="true" style="display:none;"></div>
             <div id="rich-editor" class="paper-a4" contenteditable="true" spellcheck="true"></div>
             <textarea id="plain-editor" class="paper-a4" spellcheck="true"></textarea>
+            <pre id="plain-print-mirror" class="plain-print-mirror" aria-hidden="true" style="display:none;"></pre>
             
             <!-- Mobile Text Selection Overlay & Drag Handlers -->
             <div id="mobile-selector-container" class="mobile-selector-container" style="display:none;">

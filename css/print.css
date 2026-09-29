@@ -4,7 +4,7 @@
    ========================================================================== */
 
 @page {
-    margin: 0mm; /* Zero margin completely suppresses browser default header (application name) and footer (date & time) */
+    margin: 0mm !important; /* Zero margin completely suppresses browser default header (file name/title) and footer (date & time, URL, page #) */
     size: auto;
 }
 
@@ -37,6 +37,38 @@
         overflow: visible !important;
         display: block !important;
         box-sizing: border-box !important;
+    }
+
+    /* Hide EVERYTHING by default except the window-frame and editor-area */
+    body > *:not(.window-frame) {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .window-frame > *:not(#editor-area) {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+    }
+
+    /* Inside editor area, hide floating toolbars, selection handles, drag overlay */
+    #editor-area > *:not(#rich-editor):not(#plain-editor):not(#plain-print-mirror):not(#document-watermark):not(#page-paint-canvas) {
+        display: none !important;
+        visibility: hidden !important;
+        height: 0 !important;
+        width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
     }
 
     /* Hide ALL application chrome, toolbars, menus, controls, and floating toolbars */
@@ -72,6 +104,8 @@
     .three-dots-content,
     .menu-content,
     .tab-dropdown-menu,
+    .plain-plus-wrapper,
+    .plain-plus-menu,
     .modal-overlay,
     .modal-box,
     .modal,
@@ -134,11 +168,17 @@
         line-height: 1.5 !important;
     }
 
-    body:not(.plain-text-mode) #plain-editor {
+    body:not(.plain-text-mode) #plain-editor,
+    body:not(.plain-text-mode) #plain-print-mirror {
         display: none !important;
     }
 
+    body.plain-text-mode #rich-editor,
     body.plain-text-mode #plain-editor {
+        display: none !important;
+    }
+
+    body.plain-text-mode #plain-print-mirror {
         display: block !important;
         position: static !important;
         width: 100% !important;
@@ -157,10 +197,6 @@
         white-space: pre-wrap !important;
         word-wrap: break-word !important;
         font-family: Consolas, 'Courier New', monospace !important;
-    }
-
-    body.plain-text-mode #rich-editor {
-        display: none !important;
     }
 
     #rich-editor:empty:before {
@@ -197,5 +233,33 @@
         border-color: transparent !important;
         box-shadow: none !important;
         outline: none !important;
+    }
+
+    /* Document Watermark Print Control */
+    .document-watermark,
+    #document-watermark {
+        display: none !important;
+    }
+
+    body.watermarked .document-watermark,
+    body.watermarked #document-watermark,
+    #editor-area.watermarked .document-watermark,
+    #editor-area.watermarked #document-watermark {
+        display: block !important;
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) rotate(-35deg) !important;
+        font-size: 6rem !important;
+        font-weight: 800 !important;
+        color: rgba(120, 120, 120, 0.20) !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        z-index: 9999 !important;
+        letter-spacing: 12px !important;
+        text-transform: uppercase !important;
+        white-space: nowrap !important;
+        user-select: none !important;
+        pointer-events: none !important;
     }
 }

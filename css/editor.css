@@ -1670,20 +1670,50 @@ ol.num-lower-roman { list-style-type: lower-roman !important; }
     #rich-editor.margin-none, #plain-editor.margin-none { padding: 12px 8px !important; }
 }
 
-/* Watermark Overlay */
+/* Watermark Overlay (Works in both Rich and Plain mode) */
 .watermarked {
     position: relative !important;
 }
+
+.document-watermark {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-35deg);
+    font-size: clamp(3.5rem, 8vw, 6.5rem);
+    font-weight: 800;
+    color: rgba(150, 150, 150, 0.14);
+    pointer-events: none;
+    z-index: 30;
+    letter-spacing: 12px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    user-select: none;
+    text-align: center;
+}
+
+[data-theme="dark"] .document-watermark {
+    color: rgba(255, 255, 255, 0.12);
+}
+
+.watermarked .document-watermark,
+#editor-area.watermarked .document-watermark,
+body.watermarked .document-watermark {
+    display: block !important;
+}
+
 #rich-editor.watermarked::after,
 #plain-editor.watermarked {
     background-image: repeating-linear-gradient(
         -45deg,
         transparent,
         transparent 150px,
-        rgba(150, 150, 150, 0.05) 150px,
-        rgba(150, 150, 150, 0.05) 300px
+        rgba(150, 150, 150, 0.04) 150px,
+        rgba(150, 150, 150, 0.04) 300px
     );
 }
+
 #rich-editor.watermarked::before {
     content: attr(data-watermark);
     position: fixed;
