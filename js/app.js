@@ -1030,7 +1030,7 @@ function startAutoSaveInterval() {
         if (AppState.autoSaveEnabled) {
             saveCurrentStateToMemory(true);
         }
-    }, 25000);
+    }, 1800);
 }
 
 // Ensure all toolbar buttons, tabs, and options have accessibility labels & titles
