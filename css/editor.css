@@ -1,0 +1,1768 @@
+/* ==========================================================================
+   Ultimate Web Notepad - Editor Container & Document Elements
+   ========================================================================== */
+
+.editor-container {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: auto;
+    position: relative;
+    background: var(--win-bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 12px 60px 12px;
+    box-sizing: border-box;
+}
+
+/* Rich Text Editor - Authentic Document Sheet */
+#rich-editor {
+    width: 100%;
+    max-width: 840px;
+    min-height: 1056px;
+    margin: 0 auto;
+    padding: 48px;
+    outline: none;
+    font-size: 16px;
+    line-height: 1.6;
+    display: block;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: var(--text-primary);
+    background: var(--bg-primary, #ffffff);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--border-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+    transition: max-width 0.25s ease, min-height 0.25s ease, padding 0.25s ease;
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    -webkit-touch-callout: default !important;
+}
+
+#rich-editor.wrap {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+    overflow-x: hidden !important;
+    width: 100% !important;
+}
+
+#rich-editor.wrap p,
+#rich-editor.wrap div {
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+}
+
+#rich-editor.no-wrap {
+    white-space: pre !important;
+    word-wrap: normal !important;
+    word-break: normal !important;
+    overflow-x: auto !important;
+    width: max-content !important;
+    min-width: 100% !important;
+    max-width: none !important;
+    margin-left: 24px !important;
+    margin-right: 48px !important;
+}
+
+.editor-container.no-wrap-active,
+body.no-wrap-active .editor-container {
+    align-items: flex-start !important;
+}
+
+#rich-editor.no-wrap p,
+#rich-editor.no-wrap div,
+#rich-editor.no-wrap h1,
+#rich-editor.no-wrap h2,
+#rich-editor.no-wrap h3,
+#rich-editor.no-wrap span {
+    white-space: pre !important;
+    word-break: normal !important;
+    word-wrap: normal !important;
+}
+
+#rich-editor:empty:before {
+    content: "Start typing your notes here...";
+    color: var(--text-muted);
+    pointer-events: none;
+    font-style: italic;
+}
+
+#rich-editor h1 {
+    font-size: 2em;
+    font-weight: 700;
+    margin: 0.67em 0 0.4em;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 6px;
+    color: var(--text-primary);
+}
+
+#rich-editor h2 {
+    font-size: 1.5em;
+    font-weight: 600;
+    margin: 0.75em 0 0.4em;
+    color: var(--text-primary);
+}
+
+#rich-editor h3 {
+    font-size: 1.25em;
+    font-weight: 600;
+    margin: 0.83em 0 0.4em;
+    color: var(--text-primary);
+}
+
+#rich-editor p {
+    margin-bottom: 0.5em;
+}
+
+#rich-editor blockquote {
+    border-left: 4px solid var(--accent-color);
+    margin: 12px 0;
+    padding: 6px 14px;
+    background: var(--hover-color);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    color: var(--text-secondary);
+}
+
+#rich-editor pre {
+    background: var(--hover-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 12px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 14px;
+    overflow-x: auto;
+    margin: 12px 0;
+}
+
+#rich-editor ul, #rich-editor ol {
+    padding-left: 28px;
+    margin: 8px 0;
+}
+
+#rich-editor table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 14px 0;
+    border: 1px solid var(--border-color);
+}
+
+#rich-editor th, #rich-editor td {
+    border: 1px solid var(--border-color);
+    padding: 8px 12px;
+    text-align: left;
+}
+
+#rich-editor th {
+    background-color: var(--hover-color);
+    font-weight: 600;
+}
+
+#rich-editor img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-sm);
+    margin: 12px 0;
+    display: inline-block;
+    box-shadow: var(--shadow-sm);
+}
+
+#rich-editor a,
+#rich-editor a * {
+    color: #2563eb !important;
+    text-decoration: underline !important;
+    cursor: pointer !important;
+    font-weight: 500 !important;
+}
+
+[data-theme="dark"] #rich-editor a,
+[data-theme="dark"] #rich-editor a * {
+    color: #60a5fa !important;
+}
+
+/* Plain Text Editor - Focused Notepad Sheet */
+#plain-editor {
+    width: 100%;
+    max-width: 840px;
+    min-height: 800px;
+    margin: 0 auto;
+    border: none;
+    outline: none;
+    padding: 32px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 16px;
+    line-height: 1.6;
+    background-color: var(--bg-primary, #ffffff);
+    color: var(--text-primary);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 0 0 1px var(--border-color);
+    border-radius: 4px;
+    resize: none;
+    display: none;
+    box-sizing: border-box;
+    transition: max-width 0.25s ease, min-height 0.25s ease;
+}
+
+#plain-editor.wrap {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    word-break: break-word !important;
+    overflow-x: hidden !important;
+}
+
+#plain-editor:not(.wrap) {
+    white-space: pre !important;
+    word-wrap: normal !important;
+    word-break: normal !important;
+    overflow-x: auto !important;
+    width: max-content !important;
+    min-width: 100% !important;
+    max-width: none !important;
+    margin-left: 24px !important;
+    margin-right: 48px !important;
+}
+
+/* Drag & Drop Overlay */
+.drag-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(59, 130, 246, 0.12);
+    backdrop-filter: blur(2px);
+    border: 3px dashed var(--accent-color);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--accent-color);
+    z-index: 60;
+    pointer-events: none;
+}
+
+.editor-container.drag-over .drag-overlay {
+    display: flex;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--toolbar-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border: 3px solid var(--toolbar-bg);
+    border-radius: 6px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: #475569;
+    border: 3px solid var(--toolbar-bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Mobile responsive padding */
+@media (max-width: 768px) {
+    #rich-editor,
+    #plain-editor {
+        padding: 12px 14px;
+        font-size: 15px;
+    }
+}
+
+/* ==========================================================================
+   Mobile Text Selector & Draggable Touch Handles (Edge Auto-Scroll Support)
+   ========================================================================== */
+
+.mobile-selector-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 100%;
+    pointer-events: none;
+    z-index: 75;
+    overflow: visible;
+}
+
+.mobile-sel-handle {
+    position: absolute;
+    width: 32px;
+    height: 44px;
+    pointer-events: auto;
+    cursor: grab;
+    touch-action: none; /* Prevents default page drag so custom touch handler handles drag */
+    user-select: none;
+    -webkit-user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    z-index: 80;
+    transition: transform 0.08s ease-out;
+}
+
+.mobile-sel-handle:active {
+    cursor: grabbing;
+    transform: scale(1.18);
+}
+
+.handle-line {
+    width: 2px;
+    height: 22px;
+    background-color: var(--accent-color, #3b82f6);
+    border-radius: 1px;
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
+}
+
+/* Teardrop touch pin styling matching iOS/Android native selectors */
+.handle-pin {
+    width: 16px;
+    height: 16px;
+    background-color: var(--accent-color, #3b82f6);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 0 2px rgba(255, 255, 255, 0.9);
+    transition: background-color 0.15s ease;
+    margin-top: -2px;
+    flex-shrink: 0;
+}
+
+.start-handle .handle-pin {
+    border-radius: 50% 50% 0 50%;
+    transform: rotate(45deg);
+}
+
+.end-handle .handle-pin {
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+}
+
+/* Floating touch action toolbar */
+.mobile-sel-toolbar {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    background: var(--win-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+    padding: 3px 6px;
+    gap: 4px;
+    pointer-events: auto;
+    z-index: 85;
+    white-space: nowrap;
+    animation: floatToolbarPop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    max-width: 95vw;
+    overflow-x: auto;
+}
+
+@keyframes floatToolbarPop {
+    from {
+        opacity: 0;
+        transform: translateY(6px) scale(0.92);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.sel-tool-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.15s, color 0.15s;
+    user-select: none;
+}
+
+.sel-tool-btn:hover,
+.sel-tool-btn:active {
+    background-color: var(--hover-color);
+    color: var(--accent-color);
+}
+
+/* ==========================================================================
+   Closed Files History Modal List Styling
+   ========================================================================== */
+
+.closed-files-list {
+    max-height: 380px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 2px;
+}
+
+.closed-file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--toolbar-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    cursor: pointer;
+}
+
+.closed-file-item:hover {
+    background: var(--hover-color);
+    border-color: var(--accent-color);
+    transform: translateX(2px);
+}
+
+.closed-file-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+}
+
+.closed-file-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.closed-file-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.closed-file-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.closed-file-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+}
+
+.closed-file-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.closed-file-reopen-btn {
+    background: var(--accent-color);
+    color: #ffffff;
+    border: none;
+    border-radius: var(--radius-sm);
+    padding: 5px 12px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+}
+
+.closed-file-reopen-btn:hover {
+    opacity: 0.9;
+}
+
+.closed-file-del-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.closed-file-del-btn:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.empty-closed-files {
+    text-align: center;
+    padding: 32px 16px;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+/* ==========================================================================
+   Unified Recent & Closed Files Modal - 3-in-1 List & Hover Previews
+   ========================================================================== */
+
+.recent-closed-list {
+    max-height: 380px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 4px 2px;
+}
+
+.recent-closed-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: var(--toolbar-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    cursor: pointer;
+}
+
+.recent-closed-item:hover {
+    background: var(--hover-color);
+    border-color: var(--accent-color);
+    transform: translateX(2px);
+}
+
+.file-status-badge {
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.badge-closed {
+    background: rgba(239, 68, 68, 0.14);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.badge-open {
+    background: rgba(34, 197, 94, 0.14);
+    color: #16a34a;
+    border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.badge-recent {
+    background: rgba(59, 130, 246, 0.14);
+    color: var(--accent-color);
+    border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+/* Rich hover preview card */
+.item-hover-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 12px;
+    background: var(--win-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    font-size: 12px;
+    box-shadow: var(--shadow-lg), 0 8px 24px rgba(0, 0, 0, 0.18);
+    z-index: 9999;
+    pointer-events: none;
+    min-width: 250px;
+    max-width: 360px;
+    animation: fadeInTooltip 0.15s ease-out;
+}
+
+@keyframes fadeInTooltip {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.recent-closed-item:hover .item-hover-tooltip {
+    display: block;
+}
+
+.tooltip-title {
+    font-weight: 700;
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    word-break: break-all;
+}
+
+.tooltip-meta {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.tooltip-snippet {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--border-color);
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    max-height: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: pre-wrap;
+}
+
+/* --- MS Word Callout Note Box --- */
+.doc-callout {
+    padding: 12px 16px;
+    margin: 12px 0;
+    border-radius: var(--radius-sm);
+    background: rgba(59, 130, 246, 0.08);
+    border-left: 4px solid var(--accent-color);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .doc-callout {
+    background: rgba(59, 130, 246, 0.16);
+}
+
+/* --- Real Functional Page Break --- */
+.doc-page-break {
+    display: block;
+    margin: 32px 0;
+    user-select: none;
+    position: relative;
+    width: 100%;
+    clear: both;
+}
+
+.doc-page-break .page-break-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 6px 0;
+}
+
+.doc-page-break .page-break-divider::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    border-top: 2px dashed var(--accent-color);
+    z-index: 1;
+    opacity: 0.7;
+}
+
+.doc-page-break .page-break-badge-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--editor-bg);
+    padding: 4px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    z-index: 2;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.doc-page-break .page-break-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent-color);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.doc-page-break .page-break-hint {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.doc-page-break .page-break-del-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    padding: 0 4px;
+    border-radius: 4px;
+    line-height: 1;
+    transition: all 0.15s ease;
+}
+
+.doc-page-break .page-break-del-btn:hover {
+    color: var(--danger-color);
+    background: rgba(239, 68, 68, 0.12);
+}
+
+/* Deep, authentic visual gap between separated pages on the desk */
+.doc-page-break .page-break-gap {
+    height: 56px;
+    margin: 14px -48px;
+    background: linear-gradient(180deg, #cbd5e1 0%, #94a3b8 50%, #cbd5e1 100%);
+    border-top: 3px solid #64748b;
+    border-bottom: 3px solid #64748b;
+    box-shadow: inset 0 8px 16px rgba(0, 0, 0, 0.22), inset 0 -8px 16px rgba(0, 0, 0, 0.22);
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+[data-theme="dark"] .doc-page-break .page-break-gap {
+    background: linear-gradient(180deg, #0f172a 0%, #030712 50%, #0f172a 100%);
+    border-top: 3px solid #334155;
+    border-bottom: 3px solid #334155;
+    box-shadow: inset 0 8px 16px rgba(0, 0, 0, 0.6), inset 0 -8px 16px rgba(0, 0, 0, 0.6);
+}
+
+.doc-page-break .page-break-gap::after {
+    content: "✂ ════════ PHYSICAL PAGE BREAK • NEXT PAGE STARTS BELOW ════════ ✂";
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: #1e293b;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .doc-page-break .page-break-gap::after {
+    color: #94a3b8;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.8);
+}
+
+/* Fallback for older .page-break elements */
+.page-break {
+    border: none;
+    border-top: 2px dashed var(--accent-color);
+    margin: 28px 0;
+    position: relative;
+    text-align: center;
+    overflow: visible;
+}
+
+.page-break::after {
+    content: "--- Page Break ---";
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--win-bg);
+    padding: 0 10px;
+    font-size: 11px;
+    color: var(--accent-color);
+    font-weight: 600;
+}
+
+@media print {
+    .doc-page-break, .page-break {
+        page-break-after: always !important;
+        break-after: page !important;
+        page-break-inside: avoid !important;
+        display: block !important;
+        height: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+    }
+    .doc-page-break .page-break-divider,
+    .doc-page-break .page-break-gap,
+    .page-break::after {
+        display: none !important;
+    }
+    .image-floating-toolbar,
+    .table-floating-toolbar,
+    .shape-floating-toolbar,
+    .mobile-selector-container,
+    .shape-handle,
+    .shape-move-handle,
+    .shape-converter-bubble,
+    .shape-edit-badge {
+        display: none !important;
+        visibility: hidden !important;
+    }
+}
+
+/* --- Direct On-Page Paint Canvas --- */
+.page-paint-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 40;
+    touch-action: none;
+    cursor: crosshair;
+    background: transparent;
+}
+
+/* --- Excel Spreadsheet & Document Tables --- */
+.excel-table, .corporate-table, .minimal-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 14px 0;
+    font-family: 'Segoe UI', Calibri, Arial, sans-serif;
+    font-size: 13px;
+    background: var(--win-bg);
+}
+
+.excel-table {
+    border: 1px solid #107c41;
+}
+
+.excel-table th {
+    background: #107c41 !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    padding: 6px 10px;
+    border: 1px solid #0b582e;
+    text-align: left;
+}
+
+.excel-table td {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.excel-table tr:nth-child(even) {
+    background-color: rgba(16, 124, 65, 0.04);
+}
+
+.excel-table tr:hover {
+    background-color: rgba(16, 124, 65, 0.08);
+}
+
+/* Corporate Navy Blue Table */
+.corporate-table {
+    border: 1px solid #1e40af;
+}
+
+.corporate-table th {
+    background: #1e40af !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    padding: 6px 10px;
+    border: 1px solid #1e3a8a;
+    text-align: left;
+}
+
+.corporate-table td {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.corporate-table tr:nth-child(even) {
+    background-color: rgba(30, 64, 175, 0.04);
+}
+
+/* Minimal Light Gray Table */
+.minimal-table {
+    border: 1px solid var(--border-color);
+}
+
+.minimal-table th {
+    background: var(--hover-color) !important;
+    color: var(--text-primary) !important;
+    font-weight: 600;
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    text-align: left;
+}
+
+.minimal-table td {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+/* Active cell highlight inside tables */
+#rich-editor table td:focus, #rich-editor table th:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: -1px;
+}
+
+/* Floating Table Management Toolbar */
+.table-floating-toolbar {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--toolbar-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 4px 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    z-index: 50;
+    user-select: none;
+    flex-wrap: wrap;
+    animation: fadeIn 0.15s ease-out;
+}
+
+.tbl-tool-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    padding: 4px 6px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    white-space: nowrap;
+}
+
+.tbl-tool-btn:hover {
+    background: var(--hover-color);
+}
+
+.tbl-tool-danger:hover {
+    color: var(--danger-color);
+    background: rgba(239, 68, 68, 0.14);
+}
+
+/* --- MS Word Shaded Callout Box --- */
+.word-border-box {
+    border: 2px solid var(--accent-color);
+    background: var(--hover-color);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin: 12px 0;
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* --- Shapes System (Word / PowerPoint) --- */
+.doc-shape-wrapper {
+    display: inline-block;
+    position: relative;
+    margin: 6px 4px;
+    vertical-align: top;
+    user-select: none;
+    max-width: 95%;
+    touch-action: none;
+}
+
+/* Shape Selection & Move/Resize Handles (Only shown on click or touch) */
+.doc-shape-wrapper.shape-selected {
+    outline: 2px dashed var(--accent-color);
+    outline-offset: 2px;
+}
+
+.shape-selection-overlay {
+    display: none;
+}
+
+.doc-shape-wrapper.shape-selected .shape-selection-overlay {
+    display: block;
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    pointer-events: none;
+}
+
+.shape-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--accent-color);
+    border: 1.5px solid #ffffff;
+    border-radius: 2px;
+    pointer-events: auto;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    box-sizing: border-box;
+}
+
+/* Dedicated Top-Right Move Handle shown on click/touch */
+.shape-handle.shape-move-corner {
+    top: -12px;
+    right: -12px;
+    width: 22px;
+    height: 22px;
+    background: var(--accent-color);
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: move;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+}
+
+.shape-handle.shape-handle-tl { top: 0; left: 0; cursor: nwse-resize; }
+.shape-handle.shape-handle-tr { top: 0; right: 0; cursor: nesw-resize; }
+.shape-handle.shape-handle-bl { bottom: 0; left: 0; cursor: nesw-resize; }
+.shape-handle.shape-handle-br { bottom: 0; right: 0; cursor: nwse-resize; }
+.shape-handle.shape-handle-t { top: 0; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.shape-handle.shape-handle-b { bottom: 0; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.shape-handle.shape-handle-l { left: 0; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+.shape-handle.shape-handle-r { right: 0; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+
+/* Floating Shape Toolbar (Shown on click/touch) */
+.shape-floating-toolbar {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--toolbar-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 4px 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    z-index: 50;
+    user-select: none;
+    animation: fadeIn 0.15s ease-out;
+}
+
+.shape-type-select {
+    padding: 3px 6px;
+    font-size: 11px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: var(--win-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.shape-quick-swatches {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.shape-quick-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    transition: transform 0.15s;
+}
+
+.shape-quick-color:hover {
+    transform: scale(1.2);
+}
+
+.doc-shape-body {
+    position: relative;
+    min-width: 60px;
+    min-height: 36px;
+    width: 150px;
+    height: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    transition: box-shadow 0.2s ease, border-radius 0.2s ease;
+    cursor: move;
+}
+
+.doc-shape-body:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
+}
+
+/* Shape Geometry Variants */
+.shape-rectangle {
+    border-radius: 0;
+}
+
+.shape-rounded-rect {
+    border-radius: 12px;
+}
+
+.shape-circle {
+    border-radius: 50%;
+}
+
+.shape-callout {
+    border-radius: 10px;
+    position: relative;
+}
+
+.shape-callout::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 18px;
+    border-width: 10px 10px 0 0;
+    border-style: solid;
+    border-color: inherit;
+    display: block;
+    width: 0;
+}
+
+.shape-diamond {
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    padding: 16px;
+}
+
+.shape-arrow {
+    clip-path: polygon(0% 25%, 65% 25%, 65% 0%, 100% 50%, 65% 100%, 65% 75%, 0% 75%);
+    padding: 10px 24px 10px 10px;
+}
+
+.shape-triangle {
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    padding: 20px 10px 10px 10px;
+}
+
+.shape-star {
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    padding: 18px;
+}
+
+.shape-hexagon {
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+    padding: 10px;
+}
+
+.shape-pentagon {
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+    padding: 12px 8px 8px;
+}
+
+.shape-heart {
+    clip-path: polygon(50% 85%, 20% 55%, 10% 35%, 18% 15%, 35% 15%, 50% 30%, 65% 15%, 82% 15%, 90% 35%, 80% 55%);
+    padding: 12px 10px;
+}
+
+.shape-cloud {
+    border-radius: 30px 30px 20px 20px;
+    padding: 8px 12px;
+}
+
+.shape-badge {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 75%, 50% 100%, 0% 75%);
+    padding: 8px 8px 14px;
+}
+
+.shape-left-arrow {
+    clip-path: polygon(35% 0%, 35% 25%, 100% 25%, 100% 75%, 35% 75%, 35% 100%, 0% 50%);
+    padding: 8px 8px 8px 20px;
+}
+
+.shape-pill {
+    border-radius: 9999px;
+    padding: 6px 14px;
+}
+
+.shape-cylinder {
+    border-radius: 16px / 8px;
+    padding: 8px 10px;
+}
+
+.shape-octagon {
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+    padding: 12px;
+}
+
+.shape-parallelogram {
+    clip-path: polygon(20% 0%, 100% 0%, 80% 100%, 0% 100%);
+    padding: 10px 18px;
+}
+
+.shape-trapezoid {
+    clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+    padding: 12px 14px;
+}
+
+.shape-cross {
+    clip-path: polygon(35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%, 0% 35%, 35% 35%);
+    padding: 12px;
+}
+
+.doc-shape-text {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    outline: none;
+    font-size: 14px;
+    font-weight: 500;
+    user-select: text;
+    cursor: text;
+    word-break: break-word;
+    overflow: auto;
+}
+
+/* --- MS Word Multiple Bullet & Numbering Point Styles --- */
+ul.bullet-disc { list-style-type: disc !important; }
+ul.bullet-circle { list-style-type: circle !important; }
+ul.bullet-square { list-style-type: square !important; }
+ul.bullet-diamond { list-style-type: '◆  ' !important; }
+ul.bullet-arrow { list-style-type: '➢  ' !important; }
+ul.bullet-check { list-style-type: '✔  ' !important; }
+ul.bullet-star { list-style-type: '★  ' !important; }
+ul.bullet-dash { list-style-type: '—  ' !important; }
+
+@counter-style paren-decimal {
+    system: numeric;
+    symbols: "0" "1" "2" "3" "4" "5" "6" "7" "8" "9";
+    suffix: ") ";
+}
+
+@counter-style paren-alpha {
+    system: alphabetic;
+    symbols: "a" "b" "c" "d" "e" "f" "g" "h" "i" "j" "k" "l" "m" "n" "o" "p" "q" "r" "s" "t" "u" "v" "w" "x" "y" "z";
+    suffix: ") ";
+}
+
+ol.num-decimal { list-style-type: decimal !important; }
+ol.num-decimal-paren { list-style-type: paren-decimal, decimal !important; }
+ol.num-upper-alpha { list-style-type: upper-alpha !important; }
+ol.num-lower-alpha { list-style-type: lower-alpha !important; }
+ol.num-lower-alpha-paren { list-style-type: paren-alpha, lower-alpha !important; }
+ol.num-upper-roman { list-style-type: upper-roman !important; }
+ol.num-lower-roman { list-style-type: lower-roman !important; }
+
+
+/* --- Floating Image Management Toolbar --- */
+.image-floating-toolbar {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--toolbar-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 4px 6px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+    z-index: 50;
+    user-select: none;
+    animation: fadeIn 0.15s ease-out;
+}
+
+.img-tool-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    padding: 4px 8px;
+    font-size: 11px;
+    font-weight: 500;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.img-tool-btn:hover {
+    background: var(--hover-color);
+}
+
+.img-tool-btn.active {
+    background: var(--accent-color);
+    color: #ffffff;
+}
+
+.img-tool-btn.img-tool-del:hover {
+    color: var(--danger-color);
+    background: rgba(239, 68, 68, 0.14);
+}
+
+.img-tool-sep {
+    width: 1px;
+    height: 16px;
+    background: var(--border-color);
+    margin: 0 2px;
+}
+
+/* Image styling in editor */
+#rich-editor img {
+    max-width: 100%;
+    cursor: pointer;
+    transition: outline 0.15s;
+}
+
+#rich-editor img.selected-img {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+
+#rich-editor img.img-bordered {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* --- Image Crop Modal & Stage --- */
+.crop-stage-wrapper {
+    position: relative;
+    max-height: 420px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0f172a;
+    border-radius: 6px;
+    overflow: hidden;
+    padding: 16px;
+    user-select: none;
+}
+
+.crop-overlay-box {
+    position: absolute;
+    border: 2px solid #3b82f6;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+    cursor: move;
+    box-sizing: border-box;
+}
+
+.crop-box-grid {
+    width: 100%;
+    height: 100%;
+    background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.25) 1px, transparent 1px);
+    background-size: 33.33% 33.33%;
+}
+
+.crop-handle {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #3b82f6;
+    border: 1.5px solid #ffffff;
+    box-sizing: border-box;
+}
+
+.crop-handle.handle-tl { top: -5px; left: -5px; cursor: nwse-resize; }
+.crop-handle.handle-tr { top: -5px; right: -5px; cursor: nesw-resize; }
+.crop-handle.handle-bl { bottom: -5px; left: -5px; cursor: nesw-resize; }
+.crop-handle.handle-br { bottom: -5px; right: -5px; cursor: nwse-resize; }
+.crop-handle.handle-t { top: -5px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.crop-handle.handle-b { bottom: -5px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.crop-handle.handle-l { left: -5px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+.crop-handle.handle-r { right: -5px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+
+/* Shape Picker Grid in Modal */
+.shape-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.shape-grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 4px;
+    border: 1.5px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    background: var(--win-bg);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.shape-grid-item:hover {
+    border-color: var(--accent-color);
+    background: var(--hover-color);
+}
+
+.shape-grid-item.active {
+    border-color: var(--accent-color);
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--accent-color);
+}
+
+.shape-preview-icon {
+    width: 32px;
+    height: 24px;
+    background: var(--accent-color);
+    opacity: 0.85;
+}
+
+.preview-rect { border-radius: 0; }
+.preview-rounded { border-radius: 6px; }
+.preview-circle { border-radius: 50%; width: 24px; height: 24px; }
+.preview-callout { border-radius: 4px; position: relative; }
+.preview-diamond { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+.preview-arrow { clip-path: polygon(0% 25%, 60% 25%, 60% 0%, 100% 50%, 60% 100%, 60% 75%, 0% 75%); }
+.preview-triangle { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
+.preview-star { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
+.preview-hex { clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
+.preview-pent { clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); }
+.preview-heart { clip-path: polygon(50% 85%, 20% 55%, 10% 35%, 18% 15%, 35% 15%, 50% 30%, 65% 15%, 82% 15%, 90% 35%, 80% 55%); }
+.preview-cloud { border-radius: 10px 10px 6px 6px; }
+.preview-badge { clip-path: polygon(0% 0%, 100% 0%, 100% 75%, 50% 100%, 0% 75%); }
+.preview-left-arrow { clip-path: polygon(40% 0%, 40% 25%, 100% 25%, 100% 75%, 40% 75%, 40% 100%, 0% 50%); }
+.preview-pill { border-radius: 9999px; }
+.preview-cyl { border-radius: 8px / 4px; }
+.preview-oct { clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%); }
+.preview-para { clip-path: polygon(20% 0%, 100% 0%, 80% 100%, 0% 100%); }
+.preview-trap { clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%); }
+.preview-cross { clip-path: polygon(35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%, 0% 35%, 35% 35%); }
+
+.status-zoom-container input[type="range"] {
+    accent-color: var(--accent-color, #2563eb);
+}
+
+.shape-color-swatches {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.shape-swatch {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.15s, border-color 0.15s;
+}
+
+.shape-swatch:hover {
+    transform: scale(1.15);
+}
+
+.shape-swatch.active {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+/* Full-Width Divider Line */
+#rich-editor hr {
+    display: block !important;
+    width: 100% !important;
+    border: none !important;
+    border-top: 2px solid var(--border-color) !important;
+    margin: 18px 0 !important;
+    clear: both !important;
+    box-sizing: border-box !important;
+}
+
+/* Multi-Column Layout (Independent Columns Container - No Merging/Jumping) */
+.doc-columns-container {
+    display: flex !important;
+    gap: 24px !important;
+    margin: 20px 0 !important;
+    width: 100% !important;
+    clear: both !important;
+    box-sizing: border-box !important;
+    cursor: text !important;
+}
+
+.doc-columns-container.cols-2 .doc-column-cell {
+    flex: 1 1 0 !important;
+}
+.doc-columns-container.cols-3 .doc-column-cell {
+    flex: 1 1 0 !important;
+}
+.doc-columns-container.cols-4 .doc-column-cell {
+    flex: 1 1 0 !important;
+}
+
+.doc-column-cell {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    min-height: 120px !important;
+    padding: 12px 14px !important;
+    border: 1px dashed rgba(59, 130, 246, 0.3) !important;
+    border-radius: 6px !important;
+    outline: none !important;
+    background: transparent !important;
+    cursor: text !important;
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.doc-column-cell:focus,
+.doc-column-cell:focus-within {
+    border-color: var(--accent-color, #3b82f6) !important;
+    background: rgba(59, 130, 246, 0.04) !important;
+}
+
+.doc-column-divider {
+    width: 1px;
+    background: var(--border-color);
+    align-self: stretch;
+    flex-shrink: 0;
+}
+
+/* Document Paper Size Presets (MS Word Page Setup - Physical Height & Width) */
+.paper-letter,
+#rich-editor.paper-letter,
+#plain-editor.paper-letter {
+    width: 8.5in !important;
+    min-height: 11in !important;
+    max-width: 8.5in !important;
+}
+
+.paper-a4,
+#rich-editor.paper-a4,
+#plain-editor.paper-a4 {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    max-width: 210mm !important;
+}
+
+.paper-legal,
+#rich-editor.paper-legal,
+#plain-editor.paper-legal {
+    width: 8.5in !important;
+    min-height: 14in !important;
+    max-width: 8.5in !important;
+}
+
+.paper-a3,
+#rich-editor.paper-a3,
+#plain-editor.paper-a3 {
+    width: 297mm !important;
+    min-height: 420mm !important;
+    max-width: 297mm !important;
+}
+
+.paper-a5,
+#rich-editor.paper-a5,
+#plain-editor.paper-a5 {
+    width: 148mm !important;
+    min-height: 210mm !important;
+    max-width: 148mm !important;
+}
+
+.paper-executive,
+#rich-editor.paper-executive,
+#plain-editor.paper-executive {
+    width: 7.25in !important;
+    min-height: 10.5in !important;
+    max-width: 7.25in !important;
+}
+
+.paper-full,
+#rich-editor.paper-full,
+#plain-editor.paper-full {
+    width: 98% !important;
+    max-width: 100% !important;
+    min-height: calc(100vh - 120px) !important;
+    flex: 1 0 auto !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Document Margin Presets (MS Word Standard Physical Margins) */
+.margin-normal,
+#rich-editor.margin-normal,
+#plain-editor.margin-normal {
+    padding: 1in !important;
+}
+
+.margin-narrow,
+#rich-editor.margin-narrow,
+#plain-editor.margin-narrow {
+    padding: 0.5in !important;
+}
+
+.margin-moderate,
+#rich-editor.margin-moderate,
+#plain-editor.margin-moderate {
+    padding: 1in 0.75in !important;
+}
+
+.margin-wide,
+#rich-editor.margin-wide,
+#plain-editor.margin-wide {
+    padding: 1in 1.5in !important;
+}
+
+.margin-none,
+.margin-zero,
+#rich-editor.margin-none,
+#rich-editor.margin-zero,
+#plain-editor.margin-none,
+#plain-editor.margin-zero {
+    padding: 16px !important;
+}
+
+/* Landscape Mode Paper Size Overrides (MS Word Page Orientation) */
+#rich-editor.landscape-mode.paper-a4,
+#plain-editor.landscape-mode.paper-a4 {
+    width: 297mm !important;
+    min-height: 210mm !important;
+    max-width: 297mm !important;
+}
+
+#rich-editor.landscape-mode.paper-letter,
+#plain-editor.landscape-mode.paper-letter {
+    width: 11in !important;
+    min-height: 8.5in !important;
+    max-width: 11in !important;
+}
+
+#rich-editor.landscape-mode.paper-legal,
+#plain-editor.landscape-mode.paper-legal {
+    width: 14in !important;
+    min-height: 8.5in !important;
+    max-width: 14in !important;
+}
+
+#rich-editor.landscape-mode.paper-a3,
+#plain-editor.landscape-mode.paper-a3 {
+    width: 420mm !important;
+    min-height: 297mm !important;
+    max-width: 420mm !important;
+}
+
+#rich-editor.landscape-mode.paper-a5,
+#plain-editor.landscape-mode.paper-a5 {
+    width: 210mm !important;
+    min-height: 148mm !important;
+    max-width: 210mm !important;
+}
+
+#rich-editor.landscape-mode.paper-executive,
+#plain-editor.landscape-mode.paper-executive {
+    width: 10.5in !important;
+    min-height: 7.25in !important;
+    max-width: 10.5in !important;
+}
+
+@media (max-width: 768px) {
+    #rich-editor:not(.paper-full),
+    #plain-editor:not(.paper-full) {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    #rich-editor.margin-normal, #plain-editor.margin-normal { padding: 24px 16px !important; }
+    #rich-editor.margin-narrow, #plain-editor.margin-narrow { padding: 16px 10px !important; }
+    #rich-editor.margin-moderate, #plain-editor.margin-moderate { padding: 20px 14px !important; }
+    #rich-editor.margin-wide, #plain-editor.margin-wide { padding: 28px 20px !important; }
+    #rich-editor.margin-none, #plain-editor.margin-none { padding: 12px 8px !important; }
+}
+
+/* Watermark Overlay */
+.watermarked {
+    position: relative !important;
+}
+#rich-editor.watermarked::after,
+#plain-editor.watermarked {
+    background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 150px,
+        rgba(150, 150, 150, 0.05) 150px,
+        rgba(150, 150, 150, 0.05) 300px
+    );
+}
+#rich-editor.watermarked::before {
+    content: attr(data-watermark);
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-35deg);
+    font-size: 5.5rem;
+    font-weight: 800;
+    color: rgba(150, 150, 150, 0.12);
+    pointer-events: none;
+    z-index: 5;
+    letter-spacing: 12px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    user-select: none;
+}
+
+/* Code Snippet / Block & Container */
+.code-block-container {
+    position: relative;
+    margin: 14px 0;
+}
+
+.code-block-snippet {
+    background: rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--accent-color);
+    border-radius: 4px;
+    padding: 12px 16px;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13.5px;
+    line-height: 1.5;
+    margin: 0;
+    white-space: pre-wrap;
+    color: var(--text-primary);
+}
+
+.btn-exit-code-block {
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    font-size: 11px;
+    font-family: inherit;
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--accent-color);
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0.85;
+    transition: opacity 0.15s, background-color 0.15s, color 0.15s;
+    user-select: none;
+    z-index: 10;
+}
+
+.btn-exit-code-block:hover {
+    background: var(--accent-color);
+    color: #ffffff;
+    opacity: 1 !important;
+}
+
+.code-block-container:hover .btn-exit-code-block,
+.code-block-container:focus-within .btn-exit-code-block {
+    opacity: 1 !important;
+}
+
+/* Fullscreen / Focus Mode */
+body.fullscreen-mode .window-frame {
+    position: fixed !important;
+    inset: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    border-radius: 0 !important;
+    z-index: 99999 !important;
+    box-shadow: none !important;
+}
+body.fullscreen-mode .title-bar {
+    display: none !important;
+}
+
+

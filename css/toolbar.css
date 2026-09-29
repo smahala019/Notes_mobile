@@ -1,0 +1,1010 @@
+/* Menu Tab Navigation Buttons (MS Word Ribbon Tabs) */
+.menu-tab-btn {
+    padding: 5px 14px;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    transition: var(--transition);
+    user-select: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu-tab-btn:hover {
+    background-color: var(--hover-color);
+    color: var(--accent-hover);
+}
+
+.menu-tab-btn.active {
+    background-color: var(--toolbar-bg);
+    color: var(--accent-color);
+    border-bottom: 2px solid var(--accent-color);
+    font-weight: 600;
+}
+
+.toolbar {
+    background: var(--toolbar-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 4px 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    flex-shrink: 0;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 80;
+    transition: var(--transition);
+}
+
+/* Ribbon Panels (Changeable according to user click on menu button like MS Word) */
+.ribbon-panel {
+    display: none;
+    width: 100%;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 3px 5px;
+    box-sizing: border-box;
+}
+
+.ribbon-panel.active {
+    display: flex;
+}
+
+/* Fluid Auto-Adjusting Rows (Eliminates dead space after highlighter or any button) */
+.ribbon-panel>* {
+    flex-shrink: 0;
+}
+
+.tool-separator {
+    width: 1px;
+    height: 20px;
+    background: var(--border-color);
+    margin: 0 2px;
+    flex-shrink: 0;
+}
+
+.tool-btn {
+    flex: 0 0 auto;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 6px;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    color: var(--text-primary);
+    font-size: 12px;
+    transition: var(--transition);
+    user-select: none;
+    white-space: nowrap;
+}
+
+.tool-btn span {
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.tool-btn:hover {
+    background-color: var(--hover-color);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.tool-btn.active {
+    background-color: var(--active-color);
+    border-color: var(--active-border);
+    color: var(--accent-hover);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
+    font-weight: bold;
+}
+
+.tool-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Voice Recording State */
+.tool-btn.recording {
+    color: #ffffff;
+    background-color: var(--danger-color);
+    border-color: var(--danger-hover);
+    animation: voicePulse 1.4s infinite;
+}
+
+@keyframes voicePulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+    }
+
+    70% {
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+/* Dropdowns in Toolbar */
+.tool-select {
+    height: 28px;
+    padding: 0 6px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    background: var(--win-bg);
+    color: var(--text-primary);
+    outline: none;
+    cursor: pointer;
+    transition: var(--transition);
+    flex: 0 1 auto;
+}
+
+.tool-select:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+#font-family-select {
+    min-width: 90px;
+    max-width: 145px;
+}
+
+#formatBlock {
+    min-width: 80px;
+    max-width: 115px;
+}
+
+.tool-input-number {
+    width: 50px;
+    height: 28px;
+    padding: 0 4px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    background: var(--win-bg);
+    color: var(--text-primary);
+    text-align: center;
+    outline: none;
+    transition: var(--transition);
+    flex: 0 1 auto;
+}
+
+.tool-input-number:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* Color Picker Controls */
+.color-wrapper {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    min-width: 28px;
+    height: 28px;
+    padding: 2px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: var(--transition);
+    box-sizing: border-box;
+}
+
+.color-label {
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.color-wrapper:hover {
+    background-color: var(--hover-color);
+    border-color: var(--border-color);
+}
+
+.color-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.color-bar {
+    width: 16px;
+    height: 4px;
+    border-radius: 1px;
+    margin-top: 1px;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile Format Trigger & Sheet */
+.mobile-format-btn {
+    display: none;
+    margin-left: auto;
+    font-weight: 500;
+}
+
+.mobile-format-sheet {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--win-bg);
+    border-top: 1px solid var(--border-color);
+    box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    padding: 16px;
+    z-index: 2100;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideUpSheet 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.mobile-format-sheet.show {
+    display: block;
+}
+
+@keyframes slideUpSheet {
+    from {
+        transform: translateY(100%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+.sheet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-weight: 600;
+    font-size: 15px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.sheet-close-btn {
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.sheet-close-btn:hover {
+    background: var(--hover-color);
+}
+
+.sheet-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+#tool-change-case {
+    max-width: 55px;
+}
+
+#tool-line-spacing {
+    max-width: 82px;
+}
+
+#tool-import,
+#tool-export {
+    font-weight: 500;
+    font-size: 12px;
+    padding: 0 8px;
+    gap: 4px;
+}
+
+/* Format Painter active copy state */
+#tool-format-painter.active {
+    background-color: var(--active-color);
+    border-color: var(--active-border);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35);
+}
+
+/* Paint Bar docked under toolbar */
+.paint-bar {
+    background: var(--toolbar-bg);
+    border-bottom: 2px solid var(--accent-color);
+    padding: 4px 8px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    box-sizing: border-box;
+    z-index: 75;
+    gap: 4px 6px;
+    transition: var(--transition);
+}
+
+.paint-bar-content {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 6px;
+    width: 100%;
+}
+
+.paint-bar-title {
+    font-size: 12px;
+    color: var(--text-primary);
+    margin-right: 4px;
+    white-space: nowrap;
+}
+
+.paint-swatches {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.paint-color-swatch {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+    box-sizing: border-box;
+}
+
+.paint-color-swatch:hover,
+.paint-color-swatch.active {
+    transform: scale(1.22);
+    border-color: var(--accent-color);
+}
+
+/* Responsive Toolbar for Mobile & Tablet Devices (Smooth Touch-Scrollable Ribbon, No Squashing/Wrapping) */
+@media (max-width: 1024px) {
+    .toolbar {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        flex-wrap: nowrap !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        padding: 6px 8px !important;
+        gap: 6px !important;
+        align-items: center !important;
+        white-space: nowrap !important;
+        touch-action: pan-x !important;
+    }
+
+    .toolbar::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .ribbon-panel {
+        display: none;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 6px !important;
+        width: max-content !important;
+        min-width: 100% !important;
+    }
+
+    .ribbon-panel.active {
+        display: inline-flex !important;
+    }
+
+    .ribbon-group {
+        display: inline-flex !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 4px !important;
+        flex-shrink: 0 !important;
+        padding: 0 4px !important;
+    }
+
+    .tool-separator {
+        height: 22px !important;
+        margin: 0 3px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .tool-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-width: 36px !important;
+        height: 36px !important;
+        padding: 0 8px !important;
+        font-size: 13px !important;
+        flex-shrink: 0 !important;
+        border-radius: 6px !important;
+        background: rgba(0, 0, 0, 0.03);
+        border: 1px solid var(--border-color);
+        box-sizing: border-box !important;
+    }
+
+    [data-theme="dark"] .tool-btn {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(255, 255, 255, 0.12) !important;
+    }
+
+    .tool-btn span {
+        font-size: 12px !important;
+        font-weight: 500 !important;
+        white-space: nowrap !important;
+    }
+
+    .tool-select {
+        height: 36px !important;
+        font-size: 12px !important;
+        flex-shrink: 0 !important;
+        border-radius: 6px !important;
+    }
+
+    .tool-input-number {
+        height: 36px !important;
+        width: 52px !important;
+        font-size: 12px !important;
+        flex-shrink: 0 !important;
+        border-radius: 6px !important;
+    }
+
+    /* Hide keyboard shortcut buttons on mobile & tablet devices where virtual keyboard is used */
+    #tool-setting-shortcuts,
+    .desktop-only-shortcut,
+    .shortcut-hint {
+        display: none !important;
+    }
+
+    .menu-bar {
+        display: flex !important;
+        overflow-x: auto !important;
+        flex-wrap: nowrap !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        white-space: nowrap !important;
+        padding: 4px 6px !important;
+        gap: 4px !important;
+        touch-action: pan-x !important;
+    }
+
+    .menu-bar::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .menu-tab-btn {
+        padding: 6px 14px !important;
+        font-size: 13px !important;
+        flex-shrink: 0 !important;
+        min-height: 32px !important;
+    }
+
+    .mobile-format-btn {
+        display: inline-flex !important;
+        margin-left: auto !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+/* Plain Text Mode: hide menu-bar, ribbon toolbar, and mobile format sheet */
+body.plain-text-mode #menu-bar,
+body.plain-text-mode #main-toolbar,
+body.plain-text-mode #btn-mobile-format,
+body.plain-text-mode #mobile-format-sheet {
+    display: none !important;
+}
+
+body.plain-text-mode:not(.paint-active) #paint-bar:not(.active) {
+    display: none !important;
+}
+
+body.plain-text-mode.paint-active #paint-bar,
+body.plain-text-mode #paint-bar.active {
+    display: flex !important;
+}
+
+/* Plain + Dropdown in Right Corner (Shown ONLY in Plain Text Mode) */
+.plain-plus-wrapper {
+    position: relative;
+    display: none;
+    align-items: center;
+    margin-right: 4px;
+}
+
+body.plain-text-mode .plain-plus-wrapper {
+    display: inline-flex !important;
+}
+
+body:not(.plain-text-mode) .plain-plus-wrapper {
+    display: none !important;
+}
+
+.title-bar-actions .plain-plus-btn,
+.plain-plus-btn {
+    width: auto !important;
+    min-width: 86px !important;
+    height: 28px !important;
+    line-height: 28px !important;
+    padding: 0 12px !important;
+    background: var(--accent-color, #3b82f6) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 12px !important;
+    border-radius: 14px !important;
+    cursor: pointer !important;
+    border: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    transition: all 0.15s ease !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35) !important;
+    white-space: nowrap !important;
+}
+
+.plain-plus-btn:hover {
+    background: #2563eb !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.45) !important;
+}
+
+.plain-plus-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    min-width: 165px;
+    background: var(--bg-primary, #ffffff);
+    color: var(--text-primary, #0f172a);
+    border: 1px solid var(--border-color, #cbd5e1);
+    border-radius: 8px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2), 0 2px 6px rgba(0, 0, 0, 0.08);
+    z-index: 2000;
+    padding: 6px;
+    flex-direction: column;
+}
+
+[data-theme="dark"] .plain-plus-menu {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border-color: #334155 !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6) !important;
+}
+
+.plain-plus-menu.show {
+    display: flex !important;
+    animation: fadeInMenu 0.15s ease-out;
+}
+
+.plain-plus-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary, #0f172a);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+    user-select: none;
+}
+
+[data-theme="dark"] .plain-plus-item {
+    color: #f8fafc !important;
+}
+
+.plain-plus-item:hover {
+    background: var(--hover-color, rgba(59, 130, 246, 0.1));
+    color: var(--accent-color, #3b82f6) !important;
+    transform: translateX(2px);
+}
+
+/* --- Tool Dropdown Wrapper & Menus (MS Word Bullet & Numbering Library) --- */
+.tool-dropdown-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.tool-dropdown-arrow {
+    min-width: 14px !important;
+    width: 14px !important;
+    padding: 0 !important;
+    font-size: 9px !important;
+    margin-left: -2px;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    cursor: pointer;
+}
+
+.bullet-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: var(--win-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    z-index: 100;
+    min-width: 220px;
+    padding: 8px;
+    display: none;
+}
+
+.bullet-dropdown-menu.show {
+    display: block;
+}
+
+.bullet-menu-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--border-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.bullet-menu-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+
+.bullet-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 4px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 10px;
+    background: var(--toolbar-bg);
+    color: var(--text-primary);
+}
+
+.bullet-item:hover {
+    background: var(--hover-color);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    transform: translateY(-1px);
+}
+
+.bullet-icon {
+    font-size: 18px;
+    line-height: 1.1;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.number-menu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.number-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 11px;
+    background: var(--toolbar-bg);
+    color: var(--text-primary);
+}
+
+.number-item:hover {
+    background: var(--hover-color);
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.num-preview {
+    font-weight: 700;
+    font-family: monospace;
+}
+
+.tool-danger-btn {
+    color: var(--danger-color);
+}
+
+.tool-danger-btn:hover {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}
+
+/* Color Controls (MS Word Style with Direct In-Built Browser Color Picker) */
+.color-dropdown-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+}
+
+.color-dropdown-wrapper .tool-btn {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.color-dropdown-wrapper .tool-dropdown-arrow {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 0 4px;
+    font-size: 10px;
+    min-width: 16px;
+}
+
+.color-picker-trigger {
+    position: relative;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    user-select: none;
+    -webkit-user-select: none;
+    overflow: hidden;
+}
+
+.native-color-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    margin: 0;
+    pointer-events: auto;
+    appearance: none;
+    -webkit-appearance: none;
+    background: transparent;
+}
+
+/* ==========================================================================
+   Equation & Math Solver Container Bar
+   ========================================================================== */
+.equation-bar {
+    background: var(--toolbar-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 6px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: inset 0 -1px 3px rgba(0, 0, 0, 0.04);
+    animation: slideDownEq 0.16s ease-out;
+    z-index: 78;
+}
+
+@keyframes slideDownEq {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.equation-bar-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: space-between;
+}
+
+.equation-bar-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.equation-bar-title svg {
+    color: var(--accent-color);
+}
+
+.eq-angle-toggle {
+    display: inline-flex;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background: var(--win-bg);
+    margin-left: auto;
+    margin-right: 8px;
+}
+
+.eq-mode-btn {
+    padding: 2px 9px;
+    font-size: 11px;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: var(--transition);
+}
+
+.eq-mode-btn.active {
+    background: var(--accent-color);
+    color: #ffffff;
+}
+
+.eq-close-btn {
+    font-size: 14px;
+    font-weight: bold;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+.eq-close-btn:hover {
+    color: var(--danger-color);
+}
+
+.equation-bar-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.eq-input-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.equation-input {
+    flex: 1 1 240px;
+    min-width: 200px;
+    height: 30px;
+    padding: 0 10px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--win-bg);
+    color: var(--text-primary);
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    outline: none;
+    box-sizing: border-box;
+    transition: var(--transition);
+}
+
+.equation-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.eq-solve-btn {
+    height: 30px;
+    padding: 0 14px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.eq-insert-btn {
+    height: 30px;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    background: var(--win-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+}
+
+.eq-insert-btn:hover {
+    background: var(--hover-color);
+    border-color: var(--accent-color);
+}
+
+.eq-result-badge {
+    padding: 4px 10px;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.22);
+    border-radius: var(--radius-sm);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent-hover);
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 22px;
+}
+
+.eq-result-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.eq-result-value {
+    color: var(--accent-hover);
+    font-weight: 700;
+    font-family: 'Consolas', monospace;
+}
+
+.equation-quick-buttons {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.eq-q-btn {
+    padding: 2px 8px;
+    font-size: 11px;
+    font-family: inherit;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    background: var(--win-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: var(--transition);
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eq-q-btn:hover {
+    background: var(--hover-color);
+    border-color: var(--accent-color);
+    color: var(--accent-hover);
+}
+
+@media print {
+
+    .toolbar,
+    #main-toolbar,
+    .ribbon-panel,
+    .equation-bar,
+    #equation-bar,
+    .paint-bar,
+    #paint-bar,
+    .bullet-dropdown-menu {
+        display: none !important;
+        visibility: hidden !important;
+    }
+}
