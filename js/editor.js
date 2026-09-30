@@ -2878,6 +2878,80 @@ function applyNumberStyle(numType) {
     showToast(`Numbering style: ${numType}`);
 }
 
+// --- Dynamic Viewport-Clamped Dropdown Positioning (Fixes Mobile Overflow & Beyond-Editor Issues) ---
+window.positionDropdownWithinViewport = function(triggerBtn, menuEl) {
+    if (!triggerBtn || !menuEl) return;
+
+    // Use fixed positioning so it completely breaks out of any parent overflow-x / overflow-y clipping
+    menuEl.style.position = 'fixed';
+    menuEl.style.zIndex = '3500';
+    menuEl.style.margin = '0';
+    menuEl.style.transform = 'none';
+
+    // Measure trigger button
+    const btnRect = triggerBtn.getBoundingClientRect();
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Ensure menu dimensions can be measured accurately
+    const wasHidden = !menuEl.classList.contains('show');
+    if (wasHidden) {
+        menuEl.style.visibility = 'hidden';
+        menuEl.style.display = 'block';
+    }
+    const menuWidth = menuEl.offsetWidth || 230;
+    const menuHeight = menuEl.offsetHeight || 180;
+    if (wasHidden) {
+        menuEl.style.display = '';
+        menuEl.style.visibility = '';
+    }
+
+    // Horizontal placement:
+    // Align menu's left edge with button's left edge by default
+    let left = btnRect.left;
+
+    // If menu overflows the right screen margin (10px from edge)
+    if (left + menuWidth > viewportWidth - 10) {
+        // Try aligning right edge of menu with right edge of button
+        const rightAlignedLeft = btnRect.right - menuWidth;
+        if (rightAlignedLeft >= 10 && rightAlignedLeft + menuWidth <= viewportWidth - 10) {
+            left = rightAlignedLeft;
+        } else {
+            // Clamp so right edge is at viewportWidth - 10
+            left = viewportWidth - menuWidth - 10;
+        }
+    }
+
+    // Clamp left edge so it never goes off the left screen edge
+    if (left < 10) {
+        left = 10;
+    }
+
+    // Vertical placement: Place below button by default
+    let top = btnRect.bottom + 4;
+
+    // If placing below would overflow the bottom of the screen
+    if (top + menuHeight > viewportHeight - 10) {
+        const topAbove = btnRect.top - menuHeight - 4;
+        // If there's enough room above, flip it above the button!
+        if (topAbove >= 10) {
+            top = topAbove;
+        } else {
+            // Otherwise, keep below but restrict max-height and make scrollable
+            menuEl.style.maxHeight = `${Math.max(120, viewportHeight - top - 10)}px`;
+            menuEl.style.overflowY = 'auto';
+        }
+    } else {
+        menuEl.style.maxHeight = `${viewportHeight - 20}px`;
+    }
+
+    menuEl.style.maxWidth = `${viewportWidth - 20}px`;
+    menuEl.style.left = `${Math.round(left)}px`;
+    menuEl.style.top = `${Math.round(top)}px`;
+    menuEl.style.right = 'auto';
+    menuEl.style.bottom = 'auto';
+};
+
 function initBulletLibraryEvents() {
     const btnBulletMenu = document.getElementById('btn-bullet-menu');
     const bulletMenu = document.getElementById('bullet-menu');
@@ -2888,7 +2962,14 @@ function initBulletLibraryEvents() {
         btnBulletMenu.addEventListener('click', (e) => {
             e.stopPropagation();
             if (numberMenu) numberMenu.classList.remove('show');
-            bulletMenu.classList.toggle('show');
+            const isOpen = bulletMenu.classList.contains('show');
+            if (typeof closeAllDropdowns === 'function') closeAllDropdowns();
+            if (!isOpen) {
+                bulletMenu.classList.add('show');
+                window.positionDropdownWithinViewport(btnBulletMenu, bulletMenu);
+            } else {
+                bulletMenu.classList.remove('show');
+            }
         });
 
         bulletMenu.querySelectorAll('.bullet-item').forEach(item => {
@@ -2905,7 +2986,14 @@ function initBulletLibraryEvents() {
         btnNumberMenu.addEventListener('click', (e) => {
             e.stopPropagation();
             if (bulletMenu) bulletMenu.classList.remove('show');
-            numberMenu.classList.toggle('show');
+            const isOpen = numberMenu.classList.contains('show');
+            if (typeof closeAllDropdowns === 'function') closeAllDropdowns();
+            if (!isOpen) {
+                numberMenu.classList.add('show');
+                window.positionDropdownWithinViewport(btnNumberMenu, numberMenu);
+            } else {
+                numberMenu.classList.remove('show');
+            }
         });
 
         numberMenu.querySelectorAll('.number-item').forEach(item => {
@@ -2924,6 +3012,17 @@ function initBulletLibraryEvents() {
         }
         if (numberMenu && !numberMenu.contains(e.target) && e.target !== btnNumberMenu) {
             numberMenu.classList.remove('show');
+        }
+    });
+
+    // Close bullet and number menus when toolbar or page is scrolled
+    ['main-toolbar', 'menu-bar'].forEach(id => {
+        const bar = document.getElementById(id);
+        if (bar) {
+            bar.addEventListener('scroll', () => {
+                if (bulletMenu) bulletMenu.classList.remove('show');
+                if (numberMenu) numberMenu.classList.remove('show');
+            }, { passive: true });
         }
     });
 }

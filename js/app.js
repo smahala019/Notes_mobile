@@ -33,6 +33,66 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (typeof changePaperSize === 'function') changePaperSize('a4');
     initAppHeaderObserver();
 
+    // Ensure selector handles and blue dots are completely removed from DOM
+    const leftoverContainer = document.getElementById('mobile-selector-container');
+    if (leftoverContainer) leftoverContainer.remove();
+    document.querySelectorAll('.mobile-selector-container, .mobile-sel-handle, .handle-pin, .mobile-sel-toolbar').forEach(el => el.remove());
+
+    // Enable smooth horizontal wheel and touch/pointer drag scrolling for toolbar, menu-bar, and status-bar
+    ['main-toolbar', 'menu-bar', 'status-bar'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+
+        // Horizontal mouse-wheel scrolling
+        el.addEventListener('wheel', (e) => {
+            if (e.deltaY !== 0 && el.scrollWidth > el.clientWidth) {
+                e.preventDefault();
+                el.scrollLeft += e.deltaY;
+            }
+        }, { passive: false });
+
+        // Pointer drag-to-scroll (works smoothly with mouse, touch pen, and trackpad)
+        let isDown = false;
+        let startX = 0;
+        let scrollLeft = 0;
+        let hasMoved = false;
+
+        el.addEventListener('mousedown', (e) => {
+            if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return;
+            isDown = true;
+            hasMoved = false;
+            startX = e.pageX - el.offsetLeft;
+            scrollLeft = el.scrollLeft;
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDown = false;
+        });
+
+        el.addEventListener('mouseleave', () => {
+            isDown = false;
+        });
+
+        el.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            const x = e.pageX - el.offsetLeft;
+            const walk = (x - startX) * 1.5;
+            if (Math.abs(walk) > 4) {
+                hasMoved = true;
+            }
+            el.scrollLeft = scrollLeft - walk;
+        });
+
+        // Prevent accidental button clicks when user was dragging to scroll
+        el.addEventListener('click', (e) => {
+            if (hasMoved) {
+                e.preventDefault();
+                e.stopPropagation();
+                hasMoved = false;
+            }
+        }, true);
+    });
+
     // Auto-update year in status bar and about modal
     const currentYear = new Date().getFullYear();
     const statusYearEl = document.getElementById('status-current-year');

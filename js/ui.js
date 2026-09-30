@@ -87,7 +87,7 @@ function renderTabs() {
 // --- Menu Bar & Dropdown Controls ---
 
 function closeAllDropdowns() {
-    document.querySelectorAll('.menu-content.show, .three-dots-content.show, .tab-dropdown-menu.show, .plain-plus-menu.show').forEach(el => {
+    document.querySelectorAll('.menu-content.show, .three-dots-content.show, .tab-dropdown-menu.show, .plain-plus-menu.show, .bullet-dropdown-menu.show').forEach(el => {
         el.classList.remove('show');
     });
     document.querySelectorAll('.menu-item.active').forEach(el => {
@@ -117,10 +117,14 @@ function openTabContextMenu(fileId, triggerEl) {
     activeTabMenuFileId = fileId;
     closeAllDropdowns();
 
-    const rect = triggerEl.getBoundingClientRect();
-    menu.style.top = (rect.bottom + 4) + 'px';
-    menu.style.left = Math.max(10, Math.min(rect.left - 20, window.innerWidth - 190)) + 'px';
     menu.classList.add('show');
+    if (window.positionDropdownWithinViewport) {
+        window.positionDropdownWithinViewport(triggerEl, menu);
+    } else {
+        const rect = triggerEl.getBoundingClientRect();
+        menu.style.top = (rect.bottom + 4) + 'px';
+        menu.style.left = Math.max(10, Math.min(rect.left - 20, window.innerWidth - 190)) + 'px';
+    }
 }
 
 function handleTabAction(action, fileId) {
@@ -199,6 +203,9 @@ function initMenuEvents() {
             if (!isOpen) {
                 content.classList.add('show');
                 item.classList.add('active');
+                if (window.positionDropdownWithinViewport) {
+                    window.positionDropdownWithinViewport(item, content);
+                }
             }
             e.stopPropagation();
         });
@@ -212,6 +219,9 @@ function initMenuEvents() {
                 if (content) {
                     content.classList.add('show');
                     item.classList.add('active');
+                    if (window.positionDropdownWithinViewport) {
+                        window.positionDropdownWithinViewport(item, content);
+                    }
                 }
             }
         });
@@ -230,6 +240,9 @@ function initMenuEvents() {
             closeAllDropdowns();
             if (!isOpen) {
                 threeDotsMenu.classList.add('show');
+                if (window.positionDropdownWithinViewport) {
+                    window.positionDropdownWithinViewport(threeDotsBtn, threeDotsMenu);
+                }
             }
             e.stopPropagation();
         });
@@ -248,16 +261,23 @@ function initMenuEvents() {
 
     // Global window click with (e) parameter: close dropdowns when clicking outside
     window.addEventListener('click', (e) => {
-        const isMenuBtn = e.target.closest('.menu-item, .three-dots, .tab-menu-btn');
-        const isMenuContent = e.target.closest('.menu-content, .three-dots-content, .tab-dropdown-menu');
+        const isMenuBtn = e.target.closest('.menu-item, .three-dots, .tab-menu-btn, #btn-plain-plus, .plain-plus-btn, .tool-dropdown-arrow, #btn-bullet-menu, #btn-number-menu');
+        const isMenuContent = e.target.closest('.menu-content, .three-dots-content, .tab-dropdown-menu, .plain-plus-menu, .bullet-dropdown-menu');
 
         if (!isMenuBtn && !isMenuContent) {
             closeAllDropdowns();
         }
     });
 
-    // Close open dropdowns when scrolling the page
+    // Close open dropdowns when scrolling the page or toolbars
     window.addEventListener('scroll', closeAllDropdowns, { passive: true });
+    window.addEventListener('resize', closeAllDropdowns, { passive: true });
+    ['main-toolbar', 'menu-bar'].forEach(id => {
+        const bar = document.getElementById(id);
+        if (bar) {
+            bar.addEventListener('scroll', closeAllDropdowns, { passive: true });
+        }
+    });
 
     // Close dropdowns when clicking on any menu-option
     document.querySelectorAll('.menu-option, .dot-option').forEach(opt => {
@@ -407,7 +427,14 @@ function initActionDelegation() {
         if (plainPlusBtn) {
             e.stopPropagation();
             if (plainPlusMenu) {
-                plainPlusMenu.classList.toggle('show');
+                const isOpen = plainPlusMenu.classList.contains('show');
+                closeAllDropdowns();
+                if (!isOpen) {
+                    plainPlusMenu.classList.add('show');
+                    if (window.positionDropdownWithinViewport) {
+                        window.positionDropdownWithinViewport(plainPlusBtn, plainPlusMenu);
+                    }
+                }
             }
             return;
         }

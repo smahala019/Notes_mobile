@@ -39,7 +39,8 @@
     transition: max-width 0.25s ease, min-height 0.25s ease, padding 0.25s ease;
     -webkit-user-select: text !important;
     user-select: text !important;
-    -webkit-touch-callout: default !important;
+    -webkit-touch-callout: none !important;
+    caret-color: var(--text-primary);
 }
 
 #rich-editor.wrap {
@@ -290,125 +291,22 @@ body.no-wrap-active .editor-container {
 }
 
 /* ==========================================================================
-   Mobile Text Selector & Draggable Touch Handles (Edge Auto-Scroll Support)
+   Mobile Text Selector & Draggable Touch Handles - Completely Removed
    ========================================================================== */
 
-.mobile-selector-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    min-height: 100%;
-    pointer-events: none;
-    z-index: 75;
-    overflow: hidden;
-}
-
-.mobile-sel-handle {
-    position: absolute;
-    width: 32px;
-    height: 44px;
-    pointer-events: auto;
-    cursor: grab;
-    touch-action: none;
-    /* Prevents default page drag so custom touch handler handles drag */
-    user-select: none;
-    -webkit-user-select: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    z-index: 80;
-    transition: transform 0.08s ease-out;
-}
-
-.mobile-sel-handle:active {
-    cursor: grabbing;
-    transform: scale(1.18);
-}
-
-.handle-line {
-    width: 2px;
-    height: 22px;
-    background-color: var(--accent-color, #3b82f6);
-    border-radius: 1px;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
-    flex-shrink: 0;
-}
-
-/* Teardrop touch pin styling matching iOS/Android native selectors */
-.handle-pin {
-    width: 16px;
-    height: 16px;
-    background-color: var(--accent-color, #3b82f6);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 0 2px rgba(255, 255, 255, 0.9);
-    transition: background-color 0.15s ease;
-    margin-top: -2px;
-    flex-shrink: 0;
-}
-
-.start-handle .handle-pin {
-    border-radius: 50% 50% 0 50%;
-    transform: rotate(45deg);
-}
-
-.end-handle .handle-pin {
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-}
-
-/* Floating touch action toolbar */
+.mobile-selector-container,
+.mobile-sel-handle,
+.handle-line,
+.handle-pin,
 .mobile-sel-toolbar {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    background: var(--win-bg);
-    border: 1px solid var(--border-color);
-    border-radius: 24px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
-    padding: 3px 6px;
-    gap: 4px;
-    pointer-events: auto;
-    z-index: 85;
-    white-space: nowrap;
-    animation: floatToolbarPop 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-    max-width: 95vw;
-    overflow-x: auto;
-}
-
-@keyframes floatToolbarPop {
-    from {
-        opacity: 0;
-        transform: translateY(6px) scale(0.92);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.sel-tool-btn {
-    background: transparent;
-    border: none;
-    color: var(--text-primary);
-    font-size: 13px;
-    font-weight: 500;
-    padding: 6px 10px;
-    border-radius: 14px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.15s, color 0.15s;
-    user-select: none;
-}
-
-.sel-tool-btn:hover,
-.sel-tool-btn:active {
-    background-color: var(--hover-color);
-    color: var(--accent-color);
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: absolute !important;
+    left: -9999px !important;
 }
 
 /* ==========================================================================
