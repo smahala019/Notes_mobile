@@ -28,7 +28,6 @@ window.addEventListener('DOMContentLoaded', async () => {
     initBulletLibraryEvents();
     initImageInteractions();
     initVoiceRecognition();
-    initMobileTextSelector();
     if (typeof applyWordWrapState === 'function') applyWordWrapState();
     if (typeof initAccessibilityTooltips === 'function') initAccessibilityTooltips();
     if (typeof changePaperSize === 'function') changePaperSize('a4');

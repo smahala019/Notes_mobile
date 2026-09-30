@@ -490,10 +490,6 @@
                     <span style="font-size:11px; font-weight:700;">Mode</span>
                     <span>Rich/Plain</span>
                 </button>
-                <button class="tool-btn" id="tool-selector" data-action="toggle-selector" title="Text Selector & Mobile Selection Tool">
-                    <svg viewBox="0 0 24 24" width="16" height="16"><path d="M7 3h10v2h-4v14h4v2H7v-2h4V5H7V3z" fill="currentColor"/></svg>
-                    <span>Selector</span>
-                </button>
                 <button class="tool-btn" id="tool-stats" data-modal-open="wordcount-modal" title="Document Statistics & Word Count">
                     <svg viewBox="0 0 24 24" width="16" height="16"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/></svg>
                     <span>Stats</span>
@@ -530,14 +526,10 @@
                     <span style="font-size:12px;">📊</span>
                     <span>Status Bar</span>
                 </button>
-                <button class="tool-btn tool-danger-btn" id="tool-setting-clear" data-modal-open="clear-modal" title="Clear Storage (Reset All App Data)">
-                    <span style="font-size:12px;">🧹</span>
-                    <span>Reset Storage</span>
-                </button>
-                <button class="tool-btn desktop-only-shortcut" id="tool-setting-shortcuts" data-modal-open="shortcuts-modal" title="Keyboard Shortcuts Reference (Ctrl+/)" aria-label="Keyboard Shortcuts Reference (Desktop Only)">
+                <!-- <button class="tool-btn desktop-only-shortcut" id="tool-setting-shortcuts" data-modal-open="shortcuts-modal" title="Keyboard Shortcuts Reference (Ctrl+/)" aria-label="Keyboard Shortcuts Reference (Desktop Only)">
                     <span style="font-size:12px;">⌨️</span>
                     <span>Shortcuts</span>
-                </button>
+                </button> -->
                 <select class="tool-select" id="tool-setting-zoom" title="Editor View Zoom Scale (25% - 800% MS Word)">
                     <option value="25">Zoom: 25%</option>
                     <option value="50">Zoom: 50%</option>
@@ -556,6 +548,10 @@
                     <option value="700">Zoom: 700%</option>
                     <option value="800">Zoom: 800%</option>
                 </select>
+                <button class="tool-btn tool-danger-btn" id="tool-setting-clear" data-modal-open="clear-modal" title="Clear Storage (Reset All App Data)">
+                    <span style="font-size:12px;">🧹</span>
+                    <span>Reset Storage</span>
+                </button>
                 <button class="tool-btn" id="tool-setting-about" data-modal-open="about-modal" title="About Notepad">
                     <span style="font-size:12px;">ℹ️</span>
                     <span>About</span>
@@ -660,7 +656,6 @@
                 <button class="btn" data-action="insert-checklist">Task</button>
                 <button class="btn" data-action="insert-hr">Divider</button>
                 <button class="btn" data-modal-open="symbol-modal">Symbol</button>
-                <button class="btn" data-action="toggle-selector">Selector</button>
             </div>
             <div class="sheet-row">
                 <button class="btn" data-action="insert-excel-table">Excel Table</button>
@@ -778,27 +773,6 @@
             <textarea id="plain-editor" class="paper-a4" spellcheck="true"></textarea>
             <pre id="plain-print-mirror" class="plain-print-mirror" aria-hidden="true" style="display:none;"></pre>
             
-            <!-- Mobile Text Selection Overlay & Drag Handlers -->
-            <div id="mobile-selector-container" class="mobile-selector-container" style="display:none;">
-                <div id="mobile-sel-start" class="mobile-sel-handle start-handle" title="Drag to adjust start">
-                    <div class="handle-line"></div>
-                    <div class="handle-pin"></div>
-                </div>
-                <div id="mobile-sel-end" class="mobile-sel-handle end-handle" title="Drag to adjust end">
-                    <div class="handle-line"></div>
-                    <div class="handle-pin"></div>
-                </div>
-                <div id="mobile-sel-toolbar" class="mobile-sel-toolbar">
-                    <button class="sel-tool-btn" data-sel-action="word">Word</button>
-                    <button class="sel-tool-btn" data-sel-action="line">Line</button>
-                    <button class="sel-tool-btn" data-sel-action="all">All</button>
-                    <button class="sel-tool-btn" data-sel-action="copy">Copy</button>
-                    <button class="sel-tool-btn" data-sel-action="cut">Cut</button>
-                    <button class="sel-tool-btn" data-sel-action="bold"><b>B</b></button>
-                    <button class="sel-tool-btn" data-sel-action="italic"><i>I</i></button>
-                    <button class="sel-tool-btn" data-sel-action="done">✕</button>
-                </div>
-            </div>
 
             <!-- Drag and Drop Overlay -->
             <div class="drag-overlay">

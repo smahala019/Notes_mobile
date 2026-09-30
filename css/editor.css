@@ -138,7 +138,8 @@ body.no-wrap-active .editor-container {
     margin: 12px 0;
 }
 
-#rich-editor ul, #rich-editor ol {
+#rich-editor ul,
+#rich-editor ol {
     padding-left: 28px;
     margin: 8px 0;
 }
@@ -150,7 +151,8 @@ body.no-wrap-active .editor-container {
     border: 1px solid var(--border-color);
 }
 
-#rich-editor th, #rich-editor td {
+#rich-editor th,
+#rich-editor td {
     border: 1px solid var(--border-color);
     padding: 8px 12px;
     text-align: left;
@@ -204,7 +206,8 @@ body.no-wrap-active .editor-container {
     box-sizing: border-box;
     /* Auto-grow with content — no internal vertical scrollbar */
     overflow-y: hidden;
-    field-sizing: content; /* Chrome 123+: textarea grows with content */
+    field-sizing: content;
+    /* Chrome 123+: textarea grows with content */
     transition: max-width 0.25s ease, min-height 0.25s ease;
 }
 
@@ -278,6 +281,7 @@ body.no-wrap-active .editor-container {
 
 /* Mobile responsive padding */
 @media (max-width: 768px) {
+
     #rich-editor,
     #plain-editor {
         padding: 12px 14px;
@@ -307,7 +311,8 @@ body.no-wrap-active .editor-container {
     height: 44px;
     pointer-events: auto;
     cursor: grab;
-    touch-action: none; /* Prevents default page drag so custom touch handler handles drag */
+    touch-action: none;
+    /* Prevents default page drag so custom touch handler handles drag */
     user-select: none;
     -webkit-user-select: none;
     display: flex;
@@ -377,6 +382,7 @@ body.no-wrap-active .editor-container {
         opacity: 0;
         transform: translateY(6px) scale(0.92);
     }
+
     to {
         opacity: 1;
         transform: translateY(0) scale(1);
@@ -597,8 +603,15 @@ body.no-wrap-active .editor-container {
 }
 
 @keyframes fadeInTooltip {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .recent-closed-item:hover .item-hover-tooltip {
@@ -780,7 +793,9 @@ body.no-wrap-active .editor-container {
 }
 
 @media print {
-    .doc-page-break, .page-break {
+
+    .doc-page-break,
+    .page-break {
         page-break-after: always !important;
         break-after: page !important;
         page-break-inside: avoid !important;
@@ -790,11 +805,13 @@ body.no-wrap-active .editor-container {
         padding: 0 !important;
         border: none !important;
     }
+
     .doc-page-break .page-break-divider,
     .doc-page-break .page-break-gap,
     .page-break::after {
         display: none !important;
     }
+
     .image-floating-toolbar,
     .table-floating-toolbar,
     .shape-floating-toolbar,
@@ -822,7 +839,9 @@ body.no-wrap-active .editor-container {
 }
 
 /* --- Excel Spreadsheet & Document Tables --- */
-.excel-table, .corporate-table, .minimal-table {
+.excel-table,
+.corporate-table,
+.minimal-table {
     border-collapse: collapse;
     width: 100%;
     margin: 14px 0;
@@ -903,7 +922,8 @@ body.no-wrap-active .editor-container {
 }
 
 /* Active cell highlight inside tables */
-#rich-editor table td:focus, #rich-editor table th:focus {
+#rich-editor table td:focus,
+#rich-editor table th:focus {
     outline: 2px solid var(--accent-color);
     outline-offset: -1px;
 }
@@ -1022,14 +1042,57 @@ body.no-wrap-active .editor-container {
     z-index: 10;
 }
 
-.shape-handle.shape-handle-tl { top: 0; left: 0; cursor: nwse-resize; }
-.shape-handle.shape-handle-tr { top: 0; right: 0; cursor: nesw-resize; }
-.shape-handle.shape-handle-bl { bottom: 0; left: 0; cursor: nesw-resize; }
-.shape-handle.shape-handle-br { bottom: 0; right: 0; cursor: nwse-resize; }
-.shape-handle.shape-handle-t { top: 0; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
-.shape-handle.shape-handle-b { bottom: 0; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
-.shape-handle.shape-handle-l { left: 0; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
-.shape-handle.shape-handle-r { right: 0; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+.shape-handle.shape-handle-tl {
+    top: 0;
+    left: 0;
+    cursor: nwse-resize;
+}
+
+.shape-handle.shape-handle-tr {
+    top: 0;
+    right: 0;
+    cursor: nesw-resize;
+}
+
+.shape-handle.shape-handle-bl {
+    bottom: 0;
+    left: 0;
+    cursor: nesw-resize;
+}
+
+.shape-handle.shape-handle-br {
+    bottom: 0;
+    right: 0;
+    cursor: nwse-resize;
+}
+
+.shape-handle.shape-handle-t {
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
+.shape-handle.shape-handle-b {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
+.shape-handle.shape-handle-l {
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+}
+
+.shape-handle.shape-handle-r {
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+}
 
 /* Floating Shape Toolbar (Shown on click/touch) */
 .shape-floating-toolbar {
@@ -1223,14 +1286,37 @@ body.no-wrap-active .editor-container {
 }
 
 /* --- MS Word Multiple Bullet & Numbering Point Styles --- */
-ul.bullet-disc { list-style-type: disc !important; }
-ul.bullet-circle { list-style-type: circle !important; }
-ul.bullet-square { list-style-type: square !important; }
-ul.bullet-diamond { list-style-type: '◆  ' !important; }
-ul.bullet-arrow { list-style-type: '➢  ' !important; }
-ul.bullet-check { list-style-type: '✔  ' !important; }
-ul.bullet-star { list-style-type: '★  ' !important; }
-ul.bullet-dash { list-style-type: '—  ' !important; }
+ul.bullet-disc {
+    list-style-type: disc !important;
+}
+
+ul.bullet-circle {
+    list-style-type: circle !important;
+}
+
+ul.bullet-square {
+    list-style-type: square !important;
+}
+
+ul.bullet-diamond {
+    list-style-type: '◆  ' !important;
+}
+
+ul.bullet-arrow {
+    list-style-type: '➢  ' !important;
+}
+
+ul.bullet-check {
+    list-style-type: '✔  ' !important;
+}
+
+ul.bullet-star {
+    list-style-type: '★  ' !important;
+}
+
+ul.bullet-dash {
+    list-style-type: '—  ' !important;
+}
 
 @counter-style paren-decimal {
     system: numeric;
@@ -1244,13 +1330,33 @@ ul.bullet-dash { list-style-type: '—  ' !important; }
     suffix: ") ";
 }
 
-ol.num-decimal { list-style-type: decimal !important; }
-ol.num-decimal-paren { list-style-type: paren-decimal, decimal !important; }
-ol.num-upper-alpha { list-style-type: upper-alpha !important; }
-ol.num-lower-alpha { list-style-type: lower-alpha !important; }
-ol.num-lower-alpha-paren { list-style-type: paren-alpha, lower-alpha !important; }
-ol.num-upper-roman { list-style-type: upper-roman !important; }
-ol.num-lower-roman { list-style-type: lower-roman !important; }
+ol.num-decimal {
+    list-style-type: decimal !important;
+}
+
+ol.num-decimal-paren {
+    list-style-type: paren-decimal, decimal !important;
+}
+
+ol.num-upper-alpha {
+    list-style-type: upper-alpha !important;
+}
+
+ol.num-lower-alpha {
+    list-style-type: lower-alpha !important;
+}
+
+ol.num-lower-alpha-paren {
+    list-style-type: paren-alpha, lower-alpha !important;
+}
+
+ol.num-upper-roman {
+    list-style-type: upper-roman !important;
+}
+
+ol.num-lower-roman {
+    list-style-type: lower-roman !important;
+}
 
 
 /* --- Floating Image Management Toolbar --- */
@@ -1349,7 +1455,7 @@ ol.num-lower-roman { list-style-type: lower-roman !important; }
 .crop-box-grid {
     width: 100%;
     height: 100%;
-    background-image: 
+    background-image:
         linear-gradient(to right, rgba(255, 255, 255, 0.25) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(255, 255, 255, 0.25) 1px, transparent 1px);
     background-size: 33.33% 33.33%;
@@ -1364,14 +1470,57 @@ ol.num-lower-roman { list-style-type: lower-roman !important; }
     box-sizing: border-box;
 }
 
-.crop-handle.handle-tl { top: -5px; left: -5px; cursor: nwse-resize; }
-.crop-handle.handle-tr { top: -5px; right: -5px; cursor: nesw-resize; }
-.crop-handle.handle-bl { bottom: -5px; left: -5px; cursor: nesw-resize; }
-.crop-handle.handle-br { bottom: -5px; right: -5px; cursor: nwse-resize; }
-.crop-handle.handle-t { top: -5px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
-.crop-handle.handle-b { bottom: -5px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
-.crop-handle.handle-l { left: -5px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
-.crop-handle.handle-r { right: -5px; top: 50%; transform: translateY(-50%); cursor: ew-resize; }
+.crop-handle.handle-tl {
+    top: -5px;
+    left: -5px;
+    cursor: nwse-resize;
+}
+
+.crop-handle.handle-tr {
+    top: -5px;
+    right: -5px;
+    cursor: nesw-resize;
+}
+
+.crop-handle.handle-bl {
+    bottom: -5px;
+    left: -5px;
+    cursor: nesw-resize;
+}
+
+.crop-handle.handle-br {
+    bottom: -5px;
+    right: -5px;
+    cursor: nwse-resize;
+}
+
+.crop-handle.handle-t {
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
+.crop-handle.handle-b {
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: ns-resize;
+}
+
+.crop-handle.handle-l {
+    left: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+}
+
+.crop-handle.handle-r {
+    right: -5px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: ew-resize;
+}
 
 /* Shape Picker Grid in Modal */
 .shape-grid {
@@ -1415,26 +1564,88 @@ ol.num-lower-roman { list-style-type: lower-roman !important; }
     opacity: 0.85;
 }
 
-.preview-rect { border-radius: 0; }
-.preview-rounded { border-radius: 6px; }
-.preview-circle { border-radius: 50%; width: 24px; height: 24px; }
-.preview-callout { border-radius: 4px; position: relative; }
-.preview-diamond { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
-.preview-arrow { clip-path: polygon(0% 25%, 60% 25%, 60% 0%, 100% 50%, 60% 100%, 60% 75%, 0% 75%); }
-.preview-triangle { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); }
-.preview-star { clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
-.preview-hex { clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%); }
-.preview-pent { clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%); }
-.preview-heart { clip-path: polygon(50% 85%, 20% 55%, 10% 35%, 18% 15%, 35% 15%, 50% 30%, 65% 15%, 82% 15%, 90% 35%, 80% 55%); }
-.preview-cloud { border-radius: 10px 10px 6px 6px; }
-.preview-badge { clip-path: polygon(0% 0%, 100% 0%, 100% 75%, 50% 100%, 0% 75%); }
-.preview-left-arrow { clip-path: polygon(40% 0%, 40% 25%, 100% 25%, 100% 75%, 40% 75%, 40% 100%, 0% 50%); }
-.preview-pill { border-radius: 9999px; }
-.preview-cyl { border-radius: 8px / 4px; }
-.preview-oct { clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%); }
-.preview-para { clip-path: polygon(20% 0%, 100% 0%, 80% 100%, 0% 100%); }
-.preview-trap { clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%); }
-.preview-cross { clip-path: polygon(35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%, 0% 35%, 35% 35%); }
+.preview-rect {
+    border-radius: 0;
+}
+
+.preview-rounded {
+    border-radius: 6px;
+}
+
+.preview-circle {
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+}
+
+.preview-callout {
+    border-radius: 4px;
+    position: relative;
+}
+
+.preview-diamond {
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+.preview-arrow {
+    clip-path: polygon(0% 25%, 60% 25%, 60% 0%, 100% 50%, 60% 100%, 60% 75%, 0% 75%);
+}
+
+.preview-triangle {
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.preview-star {
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.preview-hex {
+    clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+.preview-pent {
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+}
+
+.preview-heart {
+    clip-path: polygon(50% 85%, 20% 55%, 10% 35%, 18% 15%, 35% 15%, 50% 30%, 65% 15%, 82% 15%, 90% 35%, 80% 55%);
+}
+
+.preview-cloud {
+    border-radius: 10px 10px 6px 6px;
+}
+
+.preview-badge {
+    clip-path: polygon(0% 0%, 100% 0%, 100% 75%, 50% 100%, 0% 75%);
+}
+
+.preview-left-arrow {
+    clip-path: polygon(40% 0%, 40% 25%, 100% 25%, 100% 75%, 40% 75%, 40% 100%, 0% 50%);
+}
+
+.preview-pill {
+    border-radius: 9999px;
+}
+
+.preview-cyl {
+    border-radius: 8px / 4px;
+}
+
+.preview-oct {
+    clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+}
+
+.preview-para {
+    clip-path: polygon(20% 0%, 100% 0%, 80% 100%, 0% 100%);
+}
+
+.preview-trap {
+    clip-path: polygon(20% 0%, 80% 0%, 100% 100%, 0% 100%);
+}
+
+.preview-cross {
+    clip-path: polygon(35% 0%, 65% 0%, 65% 35%, 100% 35%, 100% 65%, 65% 65%, 65% 100%, 35% 100%, 35% 65%, 0% 65%, 0% 35%, 35% 35%);
+}
 
 .status-zoom-container input[type="range"] {
     accent-color: var(--accent-color, #2563eb);
@@ -1490,9 +1701,11 @@ ol.num-lower-roman { list-style-type: lower-roman !important; }
 .doc-columns-container.cols-2 .doc-column-cell {
     flex: 1 1 0 !important;
 }
+
 .doc-columns-container.cols-3 .doc-column-cell {
     flex: 1 1 0 !important;
 }
+
 .doc-columns-container.cols-4 .doc-column-cell {
     flex: 1 1 0 !important;
 }
@@ -1663,17 +1876,38 @@ ol.num-lower-roman { list-style-type: lower-roman !important; }
 }
 
 @media (max-width: 768px) {
+
     #rich-editor:not(.paper-full),
     #plain-editor:not(.paper-full) {
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
     }
-    #rich-editor.margin-normal, #plain-editor.margin-normal { padding: 24px 16px !important; }
-    #rich-editor.margin-narrow, #plain-editor.margin-narrow { padding: 16px 10px !important; }
-    #rich-editor.margin-moderate, #plain-editor.margin-moderate { padding: 20px 14px !important; }
-    #rich-editor.margin-wide, #plain-editor.margin-wide { padding: 28px 20px !important; }
-    #rich-editor.margin-none, #plain-editor.margin-none { padding: 12px 8px !important; }
+
+    #rich-editor.margin-normal,
+    #plain-editor.margin-normal {
+        padding: 24px 16px !important;
+    }
+
+    #rich-editor.margin-narrow,
+    #plain-editor.margin-narrow {
+        padding: 16px 10px !important;
+    }
+
+    #rich-editor.margin-moderate,
+    #plain-editor.margin-moderate {
+        padding: 20px 14px !important;
+    }
+
+    #rich-editor.margin-wide,
+    #plain-editor.margin-wide {
+        padding: 28px 20px !important;
+    }
+
+    #rich-editor.margin-none,
+    #plain-editor.margin-none {
+        padding: 12px 8px !important;
+    }
 }
 
 /* Watermark Overlay (Universal for both Rich and Plain mode) */
@@ -1690,7 +1924,7 @@ ol.num-lower-roman { list-style-type: lower-roman !important; }
     pointer-events: none;
     z-index: 25;
     user-select: none;
-    overflow: hidden;
+    overflow: visible;
 }
 
 .watermarked .document-watermark,
@@ -1794,8 +2028,7 @@ body.fullscreen-mode .window-frame {
     z-index: 99999 !important;
     box-shadow: none !important;
 }
+
 body.fullscreen-mode .title-bar {
     display: none !important;
 }
-
-

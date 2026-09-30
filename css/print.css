@@ -4,12 +4,16 @@
    ========================================================================== */
 
 @page {
-    margin: 0mm !important; /* Zero margin completely suppresses browser default header (file name/title) and footer (date & time, URL, page #) */
+    margin: 0mm !important;
+    /* Zero margin completely suppresses browser default header (file name/title) and footer (date & time, URL, page #) */
     size: auto;
 }
 
 @media print {
-    *, *::before, *::after {
+
+    *,
+    *::before,
+    *::after {
         -webkit-print-color-adjust: exact !important;
         print-color-adjust: exact !important;
     }
@@ -30,17 +34,18 @@
         background-color: #ffffff !important;
         color: #000000 !important;
         margin: 0 !important;
-        padding: 16mm 14mm !important; /* Provides clean document margins without triggering browser header/footer */
+        padding: 16mm 14mm !important;
+        /* Provides clean document margins without triggering browser header/footer */
         width: 100% !important;
         height: auto !important;
-        min-height: 100% !important;
+        min-height: auto !important;
         overflow: visible !important;
         display: block !important;
         box-sizing: border-box !important;
     }
 
     /* Hide EVERYTHING by default except the window-frame and editor-area */
-    body > *:not(.window-frame) {
+    body>*:not(.window-frame) {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
@@ -50,7 +55,7 @@
         overflow: hidden !important;
     }
 
-    .window-frame > *:not(#editor-area) {
+    .window-frame>*:not(#editor-area) {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
@@ -61,7 +66,7 @@
     }
 
     /* Inside editor area, hide floating toolbars, selection handles, drag overlay */
-    #editor-area > *:not(#rich-editor):not(#plain-editor):not(#plain-print-mirror):not(#document-watermark):not(#page-paint-canvas) {
+    #editor-area>*:not(#rich-editor):not(#plain-editor):not(#plain-print-mirror):not(#document-watermark):not(#page-paint-canvas) {
         display: none !important;
         visibility: hidden !important;
         height: 0 !important;
@@ -148,6 +153,7 @@
         padding: 0 !important;
         width: 100% !important;
         height: auto !important;
+        min-height: auto !important;
         overflow: visible !important;
     }
 
@@ -156,6 +162,7 @@
         display: block !important;
         position: static !important;
         width: 100% !important;
+        max-width: none !important;
         height: auto !important;
         min-height: auto !important;
         padding: 0 !important;
@@ -206,7 +213,8 @@
     }
 
     /* Clean printing for tables, shapes, images, and page breaks */
-    .doc-page-break, .page-break {
+    .doc-page-break,
+    .page-break {
         page-break-after: always !important;
         break-after: page !important;
         display: block !important;
@@ -299,6 +307,6 @@
 
     body.watermarked .watermark-print-bottom,
     #editor-area.watermarked .watermark-print-bottom {
-        top: 72% !important;
+        top: 68% !important;
     }
 }

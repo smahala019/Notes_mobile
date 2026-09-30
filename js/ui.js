@@ -797,9 +797,6 @@ function handleAction(action, e) {
         case 'reopen-closed-file':
             openModal('recent-closed-modal');
             break;
-        case 'toggle-selector':
-            toggleMobileSelector();
-            break;
         case 'reopen-all-closed':
             reopenAllClosedFiles();
             break;

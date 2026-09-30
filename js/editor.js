@@ -86,7 +86,7 @@ function getOrRestoreEditorSelection(preferNonCollapsed = true) {
                 sel.addRange(range);
                 return range;
             }
-        } catch (e) {}
+        } catch (e) { }
     }
 
     // 3. If current selection is valid in editor (even if caret)
@@ -106,7 +106,7 @@ function getOrRestoreEditorSelection(preferNonCollapsed = true) {
                 sel.addRange(range);
                 return range;
             }
-        } catch (e) {}
+        } catch (e) { }
     }
 
     return null;
@@ -188,7 +188,7 @@ function ensureCaretVisible() {
         const sel = window.getSelection();
         if (!sel || sel.rangeCount === 0) return;
         const range = sel.getRangeAt(0);
-        
+
         let rect = null;
         const rects = range.getClientRects();
         if (rects && rects.length > 0) {
@@ -204,7 +204,7 @@ function ensureCaretVisible() {
                 if (marker.parentNode) marker.parentNode.removeChild(marker);
                 sel.removeAllRanges();
                 sel.addRange(range);
-            } catch (e) {}
+            } catch (e) { }
         }
 
         if (rect && rect.right !== undefined) {
@@ -221,17 +221,17 @@ function ensureCaretVisible() {
     } else {
         const plainEd = document.getElementById('plain-editor');
         if (!plainEd) return;
-        
+
         const pos = plainEd.selectionStart;
         const text = plainEd.value || '';
         const textBefore = text.substring(0, pos);
         const lastNewline = textBefore.lastIndexOf('\n');
         const col = pos - (lastNewline === -1 ? 0 : lastNewline + 1);
-        
+
         const approxCharWidth = 9.6;
         const caretX = col * approxCharWidth;
         const visibleWidth = plainEd.clientWidth;
-        
+
         if (caretX > plainEd.scrollLeft + visibleWidth - 80) {
             plainEd.scrollLeft = caretX - visibleWidth + 120;
         } else if (caretX < plainEd.scrollLeft + 40) {
@@ -491,7 +491,7 @@ function getRichTextCursorCoordinates() {
     let reached = false;
 
     const blockTags = new Set([
-        'P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 
+        'P', 'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6',
         'LI', 'TR', 'BLOCKQUOTE', 'PRE', 'TABLE', 'SECTION', 'ARTICLE'
     ]);
 
@@ -596,7 +596,7 @@ function updateFontToolbar(family, size) {
         if (fontSelect && fontSelect.options && document.activeElement !== fontSelect) {
             const primaryFamily = family.split(',')[0].trim().toLowerCase().replace(/['"]/g, '');
             let matchedIndex = -1;
-            
+
             // 1. Exact match on option primary font name or option label
             for (let i = 0; i < fontSelect.options.length; i++) {
                 const optPrimary = fontSelect.options[i].value.split(',')[0].trim().toLowerCase().replace(/['"]/g, '');
@@ -606,7 +606,7 @@ function updateFontToolbar(family, size) {
                     break;
                 }
             }
-            
+
             // 2. Partial containment match (e.g. 'calibri' in 'calibri' or label)
             if (matchedIndex === -1) {
                 for (let i = 0; i < fontSelect.options.length; i++) {
@@ -619,7 +619,7 @@ function updateFontToolbar(family, size) {
                     }
                 }
             }
-            
+
             if (matchedIndex !== -1) {
                 fontSelect.selectedIndex = matchedIndex;
             }
@@ -665,7 +665,7 @@ function syncToolbar() {
                 if (isActive) btn.classList.add('active');
                 else btn.classList.remove('active');
             }
-        } catch (e) {}
+        } catch (e) { }
     });
 
     try {
@@ -680,7 +680,7 @@ function syncToolbar() {
                 }
             }
         }
-    } catch (e) {}
+    } catch (e) { }
 
     // Synchronize font family and font size with current selection (guard against overriding active selection change)
     if (!AppState.isSettingFont) {
@@ -698,7 +698,7 @@ function syncToolbar() {
                     }
                 }
             }
-        } catch (e) {}
+        } catch (e) { }
     }
 }
 
@@ -739,7 +739,7 @@ function clearSelectionFormatting() {
         try {
             document.execCommand('formatBlock', false, '<p>');
         } catch (e) {
-            try { document.execCommand('formatBlock', false, 'p'); } catch (e2) {}
+            try { document.execCommand('formatBlock', false, 'p'); } catch (e2) { }
         }
 
         updateFontToolbar(AppState.activeFontFamily || "'Segoe UI', sans-serif", 16);
@@ -1376,8 +1376,8 @@ function adjustFontSize(delta) {
         const sel = window.getSelection();
         if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
             const range = sel.getRangeAt(0);
-            const parent = range.startContainer.nodeType === Node.TEXT_NODE 
-                ? range.startContainer.parentElement 
+            const parent = range.startContainer.nodeType === Node.TEXT_NODE
+                ? range.startContainer.parentElement
                 : range.startContainer;
             if (parent) {
                 const comp = parseInt(window.getComputedStyle(parent).fontSize);
@@ -1562,624 +1562,10 @@ function insertSymbol(symbol) {
 }
 
 // ==========================================================================
-// Mobile Text Selector Tool with Draggable Handles & Edge Auto-Scrolling
-// ==========================================================================
-
-let isMobileSelectorActive = false;
-let activeDragHandle = null;
-let edgeAutoScrollRaf = null;
-let edgeAutoScrollSpeed = 0;
-let lastTouchX = 0;
-let lastTouchY = 0;
-
-function toggleMobileSelector(forceState = null) {
-    const container = document.getElementById('mobile-selector-container');
-    if (!container) return;
-
-    if (forceState !== null) {
-        isMobileSelectorActive = forceState;
-    } else {
-        isMobileSelectorActive = !isMobileSelectorActive;
-    }
-
-    if (isMobileSelectorActive) {
-        container.style.display = 'block';
-        const activeEd = getCurrentEditor();
-        if (activeEd) activeEd.focus();
-
-        // If no text is selected yet, select the first word or word under caret
-        const sel = window.getSelection();
-        if (AppState.isRichTextMode) {
-            if (!sel || sel.isCollapsed || sel.rangeCount === 0) {
-                selectCurrentWordAtCaret();
-            }
-        } else {
-            const ed = document.getElementById('plain-editor');
-            if (ed && ed.selectionStart === ed.selectionEnd) {
-                selectCurrentWordInPlainEditor();
-            }
-        }
-
-        updateMobileSelectorHandles();
-        showToast("Text Selector Active: Drag handles to select text");
-    } else {
-        container.style.display = 'none';
-        stopEdgeAutoScroll();
-        activeDragHandle = null;
-    }
-}
-
-function initMobileTextSelector() {
-    const container = document.getElementById('mobile-selector-container');
-    const startHandle = document.getElementById('mobile-sel-start');
-    const endHandle = document.getElementById('mobile-sel-end');
-    const toolbar = document.getElementById('mobile-sel-toolbar');
-    const editorArea = document.getElementById('editor-area');
-    const richEditor = document.getElementById('rich-editor');
-    const plainEditor = document.getElementById('plain-editor');
-
-    if (!container || !startHandle || !endHandle || !toolbar) return;
-
-    // --- Touch & Mouse Drag Handlers for Handles ---
-    function onDragStart(handleType, clientX, clientY, e) {
-        activeDragHandle = handleType;
-        lastTouchX = clientX;
-        lastTouchY = clientY;
-        if (e && e.cancelable) e.preventDefault();
-    }
-
-    function onDragMove(clientX, clientY, e) {
-        if (!activeDragHandle || !isMobileSelectorActive) return;
-        if (e && e.cancelable) e.preventDefault();
-
-        lastTouchX = clientX;
-        lastTouchY = clientY;
-
-        // Detect proximity to top or bottom edge for edge auto-scrolling
-        const areaRect = editorArea.getBoundingClientRect();
-        const topEdgeThreshold = areaRect.top + 70;
-        const bottomEdgeThreshold = areaRect.bottom - 70;
-
-        if (clientY < topEdgeThreshold) {
-            // Near top edge: scroll upwards
-            const distance = Math.max(1, topEdgeThreshold - clientY);
-            edgeAutoScrollSpeed = -Math.min(30, Math.max(4, distance * 0.45));
-            startEdgeAutoScroll();
-        } else if (clientY > bottomEdgeThreshold) {
-            // Near bottom edge: scroll downwards
-            const distance = Math.max(1, clientY - bottomEdgeThreshold);
-            edgeAutoScrollSpeed = Math.min(30, Math.max(4, distance * 0.45));
-            startEdgeAutoScroll();
-        } else {
-            // Within safe zone: pause auto-scroll
-            stopEdgeAutoScroll();
-        }
-
-        // Apply caret position to update selection
-        applyDragCoordinatesToSelection(clientX, clientY);
-    }
-
-    function onDragEnd() {
-        if (!activeDragHandle) return;
-        activeDragHandle = null;
-        stopEdgeAutoScroll();
-        updateMobileSelectorHandles();
-    }
-
-    // Touch events for Start Handle
-    startHandle.addEventListener('touchstart', (e) => {
-        if (e.touches.length > 0) {
-            onDragStart('start', e.touches[0].clientX, e.touches[0].clientY, e);
-        }
-    }, { passive: false });
-
-    // Touch events for End Handle
-    endHandle.addEventListener('touchstart', (e) => {
-        if (e.touches.length > 0) {
-            onDragStart('end', e.touches[0].clientX, e.touches[0].clientY, e);
-        }
-    }, { passive: false });
-
-    // Global touchmove & touchend on window during drag
-    window.addEventListener('touchmove', (e) => {
-        if (activeDragHandle && e.touches.length > 0) {
-            onDragMove(e.touches[0].clientX, e.touches[0].clientY, e);
-        }
-    }, { passive: false });
-
-    window.addEventListener('touchend', onDragEnd);
-    window.addEventListener('touchcancel', onDragEnd);
-
-    // Desktop Mouse Drag Support for testing and desktop trackpads
-    startHandle.addEventListener('mousedown', (e) => {
-        onDragStart('start', e.clientX, e.clientY, e);
-    });
-
-    endHandle.addEventListener('mousedown', (e) => {
-        onDragStart('end', e.clientX, e.clientY, e);
-    });
-
-    window.addEventListener('mousemove', (e) => {
-        if (activeDragHandle) {
-            onDragMove(e.clientX, e.clientY, e);
-        }
-    });
-
-    window.addEventListener('mouseup', onDragEnd);
-
-    // Automatically show selector handles & floating toolbar on text selection
-    function handleSelectionAutoShow() {
-        if (activeDragHandle) return;
-        const c = document.getElementById('mobile-selector-container');
-        if (!c) return;
-
-        const richEd = document.getElementById('rich-editor');
-        const plainEd = document.getElementById('plain-editor');
-        let hasSelection = false;
-
-        if (AppState.isRichTextMode && richEd) {
-            const sel = window.getSelection();
-            if (sel && sel.rangeCount > 0 && !sel.isCollapsed) {
-                const range = sel.getRangeAt(0);
-                if (richEd.contains(range.commonAncestorContainer) || richEd.contains(sel.anchorNode)) {
-                    const text = sel.toString();
-                    if (text && text.trim().length > 0) {
-                        hasSelection = true;
-                    }
-                }
-            }
-        } else if (plainEd && document.activeElement === plainEd) {
-            if (plainEd.selectionStart !== plainEd.selectionEnd) {
-                hasSelection = true;
-            }
-        }
-
-        if (hasSelection) {
-            isMobileSelectorActive = true;
-            c.style.display = 'block';
-            updateMobileSelectorHandles();
-        } else if (isMobileSelectorActive && !activeDragHandle) {
-            isMobileSelectorActive = false;
-            c.style.display = 'none';
-        }
-    }
-
-    // Synchronize handles on editor scroll and selectionchange
-    let scrollSelectorDebounce = null;
-    const onScrollHideHandles = () => {
-        // Immediately hide handles and blue dot while scrolling
-        const c = document.getElementById('mobile-selector-container');
-        if (c) c.style.display = 'none';
-        if (startHandle) startHandle.style.display = 'none';
-        if (endHandle) endHandle.style.display = 'none';
-        if (toolbar) toolbar.style.display = 'none';
-
-        if (scrollSelectorDebounce) clearTimeout(scrollSelectorDebounce);
-        scrollSelectorDebounce = setTimeout(() => {
-            if (isMobileSelectorActive && !activeDragHandle) {
-                updateMobileSelectorHandles();
-            }
-        }, 120);
-    };
-
-    // Listen on window for vertical page scroll
-    window.addEventListener('scroll', onScrollHideHandles, { passive: true });
-
-    // Listen on individual elements for horizontal scroll (no-wrap mode)
-    [richEditor, plainEditor, editorArea].forEach(el => {
-        if (el) {
-            el.addEventListener('scroll', onScrollHideHandles, { passive: true });
-            el.addEventListener('mouseup', handleSelectionAutoShow);
-            el.addEventListener('touchend', handleSelectionAutoShow);
-            el.addEventListener('keyup', handleSelectionAutoShow);
-        }
-    });
-
-    document.addEventListener('selectionchange', handleSelectionAutoShow);
-
-    // Floating action toolbar clicks
-    toolbar.addEventListener('click', (e) => {
-        const btn = e.target.closest('[data-sel-action]');
-        if (!btn) return;
-        const action = btn.dataset.selAction;
-
-        switch (action) {
-            case 'word':
-                selectCurrentWordAtCaret();
-                updateMobileSelectorHandles();
-                break;
-            case 'line':
-                selectCurrentLineAtCaret();
-                updateMobileSelectorHandles();
-                break;
-            case 'all': {
-                const ed = getCurrentEditor();
-                if (ed) ed.focus();
-                if (AppState.isRichTextMode) {
-                    document.execCommand('selectAll', false, null);
-                } else {
-                    document.getElementById('plain-editor')?.select();
-                }
-                updateMobileSelectorHandles();
-                break;
-            }
-            case 'copy':
-                document.execCommand('copy');
-                showToast("Copied selection to clipboard");
-                break;
-            case 'cut':
-                document.execCommand('cut');
-                updateStats();
-                saveCurrentStateToMemory();
-                updateMobileSelectorHandles();
-                showToast("Cut selection to clipboard");
-                break;
-            case 'bold':
-                if (AppState.isRichTextMode) {
-                    document.execCommand('bold');
-                    syncToolbar();
-                }
-                break;
-            case 'italic':
-                if (AppState.isRichTextMode) {
-                    document.execCommand('italic');
-                    syncToolbar();
-                }
-                break;
-            case 'done':
-                toggleMobileSelector(false);
-                break;
-        }
-    });
-}
-
-// Continuous Edge Auto-Scroll using requestAnimationFrame
-function startEdgeAutoScroll() {
-    if (edgeAutoScrollRaf) return;
-
-    function step() {
-        if (!activeDragHandle || edgeAutoScrollSpeed === 0) {
-            stopEdgeAutoScroll();
-            return;
-        }
-
-        const activeEd = getCurrentEditor();
-
-        // Vertical scroll is now on window (page scrollbar), not the editor-area container
-        window.scrollBy(0, edgeAutoScrollSpeed);
-        // Horizontal scroll (no-wrap mode) still lives on the active editor element
-        if (activeEd) activeEd.scrollLeft += (edgeAutoScrollSpeed > 0 ? 0 : 0); // no-op for vertical
-
-        // As text scrolls underneath the finger, update the selection caret
-        applyDragCoordinatesToSelection(lastTouchX, lastTouchY);
-        updateMobileSelectorHandles();
-
-        edgeAutoScrollRaf = requestAnimationFrame(step);
-    }
-
-    edgeAutoScrollRaf = requestAnimationFrame(step);
-}
-
-function stopEdgeAutoScroll() {
-    if (edgeAutoScrollRaf) {
-        cancelAnimationFrame(edgeAutoScrollRaf);
-        edgeAutoScrollRaf = null;
-    }
-    edgeAutoScrollSpeed = 0;
-}
-
-// Adjust selection range dynamically based on drag coordinates
-function applyDragCoordinatesToSelection(clientX, clientY) {
-    if (AppState.isRichTextMode) {
-        const startHandle = document.getElementById('mobile-sel-start');
-        const endHandle = document.getElementById('mobile-sel-end');
-        const container = document.getElementById('mobile-selector-container');
-
-        // Temporarily disable pointer events on handles so caretRangeFromPoint hits the text inside rich-editor
-        if (startHandle) startHandle.style.pointerEvents = 'none';
-        if (endHandle) endHandle.style.pointerEvents = 'none';
-        if (container) container.style.pointerEvents = 'none';
-
-        let pointRange = null;
-        try {
-            if (document.caretRangeFromPoint) {
-                pointRange = document.caretRangeFromPoint(clientX, clientY);
-            } else if (document.caretPositionFromPoint) {
-                const pos = document.caretPositionFromPoint(clientX, clientY);
-                if (pos) {
-                    pointRange = document.createRange();
-                    pointRange.setStart(pos.offsetNode, pos.offset);
-                    pointRange.collapse(true);
-                }
-            }
-        } finally {
-            if (startHandle) startHandle.style.pointerEvents = 'auto';
-            if (endHandle) endHandle.style.pointerEvents = 'auto';
-        }
-
-        if (!pointRange) return;
-
-        const richEditor = document.getElementById('rich-editor');
-        if (!richEditor.contains(pointRange.startContainer)) return;
-
-        const sel = window.getSelection();
-        if (!sel || sel.rangeCount === 0) return;
-
-        const currentRange = sel.getRangeAt(0);
-
-        try {
-            if (activeDragHandle === 'start') {
-                // Moving start handle: compare with current end
-                const comp = pointRange.compareBoundaryPoints(Range.START_TO_END, currentRange);
-                if (comp <= 0) {
-                    // Start is before or at current end
-                    currentRange.setStart(pointRange.startContainer, pointRange.startOffset);
-                } else {
-                    // Start went past current end: swap handles
-                    currentRange.setStart(currentRange.endContainer, currentRange.endOffset);
-                    currentRange.setEnd(pointRange.startContainer, pointRange.startOffset);
-                    activeDragHandle = 'end';
-                }
-            } else if (activeDragHandle === 'end') {
-                // Moving end handle: compare with current start
-                const comp = pointRange.compareBoundaryPoints(Range.START_TO_START, currentRange);
-                if (comp >= 0) {
-                    // End is after or at current start
-                    currentRange.setEnd(pointRange.startContainer, pointRange.startOffset);
-                } else {
-                    // End went before current start: swap handles
-                    currentRange.setEnd(currentRange.startContainer, currentRange.startOffset);
-                    currentRange.setStart(pointRange.startContainer, pointRange.startOffset);
-                    activeDragHandle = 'start';
-                }
-            }
-
-            sel.removeAllRanges();
-            sel.addRange(currentRange);
-        } catch (e) {}
-
-    } else {
-        // Plain text editor (textarea) selection adjustments
-        const ed = document.getElementById('plain-editor');
-        if (!ed) return;
-        // In textarea, approximate position or select based on relative position
-        const textLen = ed.value.length;
-        if (textLen === 0) return;
-
-        const edRect = ed.getBoundingClientRect();
-        const relY = Math.max(0, Math.min(edRect.height, clientY - edRect.top));
-        const relX = Math.max(0, Math.min(edRect.width, clientX - edRect.left));
-
-        const charRatio = Math.max(0, Math.min(1, (relY / edRect.height) * 0.9 + (relX / edRect.width) * 0.1));
-        const targetIndex = Math.round(charRatio * textLen);
-
-        if (activeDragHandle === 'start') {
-            ed.selectionStart = Math.min(targetIndex, ed.selectionEnd);
-        } else if (activeDragHandle === 'end') {
-            ed.selectionEnd = Math.max(targetIndex, ed.selectionStart);
-        }
-    }
-
-    updateMobileSelectorHandles();
-}
-
-// Visual Positioning of Handles & Floating Action Toolbar
-function updateMobileSelectorHandles() {
-    if (!isMobileSelectorActive) return;
-
-    const startHandle = document.getElementById('mobile-sel-start');
-    const endHandle = document.getElementById('mobile-sel-end');
-    const toolbar = document.getElementById('mobile-sel-toolbar');
-    const editorArea = document.getElementById('editor-area');
-    const richEditor = document.getElementById('rich-editor');
-
-    if (!startHandle || !endHandle || !toolbar || !editorArea) return;
-
-    const areaRect = editorArea.getBoundingClientRect();
-
-    if (AppState.isRichTextMode) {
-        const sel = window.getSelection();
-        if (!sel || sel.rangeCount === 0) {
-            startHandle.style.display = 'none';
-            endHandle.style.display = 'none';
-            toolbar.style.display = 'none';
-            return;
-        }
-
-        const range = sel.getRangeAt(0);
-        if (!richEditor || !richEditor.contains(range.commonAncestorContainer)) {
-            startHandle.style.display = 'none';
-            endHandle.style.display = 'none';
-            toolbar.style.display = 'none';
-            return;
-        }
-
-        let startX, startY, endX, endY;
-
-        if (range.collapsed) {
-            startHandle.style.display = 'none';
-            endHandle.style.display = 'none';
-            toolbar.style.display = 'none';
-            const c = document.getElementById('mobile-selector-container');
-            if (c) c.style.display = 'none';
-            return;
-        } else {
-            const rects = range.getClientRects();
-            if (rects.length > 0) {
-                const firstRect = rects[0];
-                const lastRect = rects[rects.length - 1];
-                startX = firstRect.left;
-                startY = firstRect.top;
-                endX = lastRect.right;
-                endY = lastRect.bottom;
-            } else {
-                const bounding = range.getBoundingClientRect();
-                startX = bounding.left;
-                startY = bounding.top;
-                endX = bounding.right;
-                endY = bounding.bottom;
-            }
-        }
-
-        positionHandles(startX, startY, endX, endY, areaRect, startHandle, endHandle, toolbar);
-
-    } else {
-        // Plain text textarea handles based on selectionStart / selectionEnd
-        const ed = document.getElementById('plain-editor');
-        if (!ed || ed.selectionEnd <= ed.selectionStart) {
-            startHandle.style.display = 'none';
-            endHandle.style.display = 'none';
-            toolbar.style.display = 'none';
-            const c = document.getElementById('mobile-selector-container');
-            if (c) c.style.display = 'none';
-            return;
-        }
-
-        const edRect = ed.getBoundingClientRect();
-        const textBefore = ed.value.substring(0, ed.selectionStart);
-        const lines = textBefore.split('\n');
-        const lineIdx = lines.length - 1;
-        const colIdx = lines[lineIdx].length;
-
-        const style = window.getComputedStyle(ed);
-        const lineHeight = parseFloat(style.lineHeight) || 22;
-        const charWidth = 8.5;
-        const padTop = parseFloat(style.paddingTop) || 20;
-        const padLeft = parseFloat(style.paddingLeft) || 20;
-
-        const startX = edRect.left + padLeft + (colIdx * charWidth) - ed.scrollLeft;
-        const startY = edRect.top + padTop + (lineIdx * lineHeight) - ed.scrollTop;
-
-        let endX = startX + 2;
-        let endY = startY + lineHeight;
-
-        const selectedText = ed.value.substring(ed.selectionStart, ed.selectionEnd);
-        const selLines = selectedText.split('\n');
-        const endLineIdx = lineIdx + selLines.length - 1;
-        const endColIdx = (selLines.length === 1 ? colIdx : 0) + selLines[selLines.length - 1].length;
-        endX = edRect.left + padLeft + (endColIdx * charWidth) - ed.scrollLeft;
-        endY = edRect.top + padTop + (endLineIdx * lineHeight) - ed.scrollTop;
-
-        positionHandles(startX, startY, endX, endY, areaRect, startHandle, endHandle, toolbar);
-    }
-}
-
-function positionHandles(startX, startY, endX, endY, areaRect, startHandle, endHandle, toolbar) {
-    const editorArea = document.getElementById('editor-area');
-    const scrollLeft = editorArea ? editorArea.scrollLeft : 0;
-
-    // Completely hide handles if scrolled out of visible viewport or behind fixed top header / bottom status bar
-    const headerEl = document.getElementById('app-header') || document.querySelector('.title-bar');
-    const headerBottom = headerEl ? headerEl.getBoundingClientRect().bottom : 74;
-    const viewportTop = headerBottom + 4;
-    const viewportBottom = window.innerHeight - 34; // above fixed status bar
-    const isAboveViewport = (startY < viewportTop) && (endY < viewportTop);
-    const isBelowViewport = (startY > viewportBottom) && (endY > viewportBottom);
-
-    if (isAboveViewport || isBelowViewport) {
-        startHandle.style.display = 'none';
-        endHandle.style.display = 'none';
-        toolbar.style.display = 'none';
-        return;
-    }
-
-    // Hide start handle if it scrolled above visible area or behind header
-    if (startY < viewportTop) {
-        startHandle.style.display = 'none';
-    } else {
-        startHandle.style.display = 'flex';
-        const relStartX = (startX - areaRect.left) + scrollLeft - 16;
-        const relStartY = (startY - areaRect.top);
-        startHandle.style.left = `${relStartX}px`;
-        startHandle.style.top = `${relStartY}px`;
-    }
-
-    // Hide end handle if it scrolled above visible area or behind header
-    if (endY < viewportTop) {
-        endHandle.style.display = 'none';
-    } else {
-        endHandle.style.display = 'flex';
-        const relEndX = (endX - areaRect.left) + scrollLeft - 16;
-        const relEndY = (endY - areaRect.top) - 20;
-        endHandle.style.left = `${relEndX}px`;
-        endHandle.style.top = `${relEndY}px`;
-    }
-
-    // Position or hide Floating Action Toolbar
-    if (startY < viewportTop + 24) {
-        toolbar.style.display = 'none';
-    } else {
-        toolbar.style.display = 'flex';
-        const tbWidth = toolbar.offsetWidth || 260;
-        const centerX = ((startX + endX) / 2 - areaRect.left) + scrollLeft - (tbWidth / 2);
-        let toolbarY = (startY - areaRect.top) - 48;
-        if (toolbarY < 10) {
-            toolbarY = (endY - areaRect.top) + 28;
-        }
-        toolbar.style.left = `${Math.max(8, centerX)}px`;
-        toolbar.style.top = `${Math.max(8, toolbarY)}px`;
-    }
-}
-
-// Helper: Select Word under caret
-function selectCurrentWordAtCaret() {
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return;
-
-    const range = sel.getRangeAt(0);
-    const node = range.startContainer;
-
-    if (node.nodeType === Node.TEXT_NODE) {
-        const text = node.nodeValue;
-        let start = range.startOffset;
-        let end = range.startOffset;
-
-        while (start > 0 && !/\s/.test(text[start - 1])) start--;
-        while (end < text.length && !/\s/.test(text[end])) end++;
-
-        if (start < end) {
-            range.setStart(node, start);
-            range.setEnd(node, end);
-            sel.removeAllRanges();
-            sel.addRange(range);
-        }
-    }
-}
-
-// Helper: Select Line / Paragraph under caret
-function selectCurrentLineAtCaret() {
-    const sel = window.getSelection();
-    if (!sel || sel.rangeCount === 0) return;
-
-    const range = sel.getRangeAt(0);
-    let parentBlock = range.startContainer;
-
-    while (parentBlock && parentBlock !== document.getElementById('rich-editor')) {
-        const tag = parentBlock.nodeName.toUpperCase();
-        if (['P', 'DIV', 'H1', 'H2', 'H3', 'LI', 'BLOCKQUOTE'].includes(tag)) {
-            range.selectNodeContents(parentBlock);
-            sel.removeAllRanges();
-            sel.addRange(range);
-            return;
-        }
-        parentBlock = parentBlock.parentNode;
-    }
-}
-
-function selectCurrentWordInPlainEditor() {
-    const ed = document.getElementById('plain-editor');
-    if (!ed) return;
-    const val = ed.value;
-    let s = ed.selectionStart;
-    let e = ed.selectionEnd;
-
-    while (s > 0 && !/\s/.test(val[s - 1])) s--;
-    while (e < val.length && !/\s/.test(val[e])) e++;
-
-    if (s < e) {
-        ed.setSelectionRange(s, e);
-    }
-}
+// Text Selector tool and its functionality removed
+function toggleMobileSelector(forceState = null) {}
+function initMobileTextSelector() {}
+function updateMobileSelectorHandles() {}
 
 // ==========================================================================
 // Productivity Suite Features (Word, Excel, PowerPoint, Paint, Notepad)
@@ -2279,11 +1665,11 @@ function solveAlgebraicEquation(inputStr) {
     clean = clean.replace(/(\d)\s*([a-zA-Z])(?![a-zA-Z])/g, '$1 * $2');
     clean = clean.replace(/\b(\d+)\s*\(/g, '$1 * (');
     clean = clean.replace(/\)\s*([a-zA-Z])/g, ') * $1');
-    
+
     // Find candidate variable (single letter, not part of function names)
     const matches = clean.match(/(?<![a-zA-Z])([a-zA-Z])(?![a-zA-Z])/g);
     if (!matches) return null;
-    
+
     let variable = null;
     for (const m of matches) {
         const lower = m.toLowerCase();
@@ -3878,7 +3264,7 @@ function pushRichSnapshot() {
     if (canvas && pagePaint && pagePaint.active) {
         try {
             canvasData = canvas.toDataURL('image/png');
-        } catch (e) {}
+        } catch (e) { }
     }
 
     if (!Array.isArray(AppState.richUndoStack)) {
@@ -5110,8 +4496,8 @@ function exitCodeBlock(codeElement) {
     const richEditor = document.getElementById('rich-editor');
     if (!richEditor) return false;
 
-    while (topBlock.parentNode && topBlock.parentNode !== richEditor && 
-           (topBlock.parentNode.nodeName === 'PRE' || (topBlock.parentNode.classList && (topBlock.parentNode.classList.contains('code-block-container') || topBlock.parentNode.classList.contains('code-block-snippet'))))) {
+    while (topBlock.parentNode && topBlock.parentNode !== richEditor &&
+        (topBlock.parentNode.nodeName === 'PRE' || (topBlock.parentNode.classList && (topBlock.parentNode.classList.contains('code-block-container') || topBlock.parentNode.classList.contains('code-block-snippet'))))) {
         topBlock = topBlock.parentNode;
     }
 
@@ -5222,10 +4608,10 @@ function updateWatermarkLayout() {
     const plainEditor = document.getElementById('plain-editor');
     const editorArea = document.getElementById('editor-area');
 
-    const isWatermarked = document.body.classList.contains('watermarked') || 
-                          (richEditor && richEditor.classList.contains('watermarked')) ||
-                          (plainEditor && plainEditor.classList.contains('watermarked')) ||
-                          (editorArea && editorArea.classList.contains('watermarked'));
+    const isWatermarked = document.body.classList.contains('watermarked') ||
+        (richEditor && richEditor.classList.contains('watermarked')) ||
+        (plainEditor && plainEditor.classList.contains('watermarked')) ||
+        (editorArea && editorArea.classList.contains('watermarked'));
 
     if (!isWatermarked) {
         wmEl.style.display = 'none';
@@ -5236,11 +4622,11 @@ function updateWatermarkLayout() {
     const activeEditor = AppState.isRichTextMode ? richEditor : plainEditor;
     if (!activeEditor || !editorArea) return;
 
-    const wmText = (wmEl.getAttribute('data-watermark') || 
-                    (richEditor && richEditor.getAttribute('data-watermark')) || 
-                    (plainEditor && plainEditor.getAttribute('data-watermark')) || 
-                    (wmEl.textContent && wmEl.textContent.trim()) ||
-                    "CONFIDENTIAL").toUpperCase();
+    const wmText = (wmEl.getAttribute('data-watermark') ||
+        (richEditor && richEditor.getAttribute('data-watermark')) ||
+        (plainEditor && plainEditor.getAttribute('data-watermark')) ||
+        (wmEl.textContent && wmEl.textContent.trim()) ||
+        "CONFIDENTIAL").toUpperCase();
 
     // Determine the true single-page base height of active editor (e.g. 297mm for A4 = ~1123px)
     const isLandscape = activeEditor.classList.contains('landscape-mode');
@@ -5265,19 +4651,20 @@ function updateWatermarkLayout() {
         : Math.max(1, Math.ceil((currentHeight - 40) / pageHeight));
 
     wmEl.style.display = 'block';
+    const offsetTop = activeEditor.offsetTop || 16;
+    wmEl.style.top = `${offsetTop}px`;
     wmEl.style.height = `${numPages * pageHeight}px`;
 
     // Horizontal center relative to active editor
     const centerX = activeEditor.offsetLeft + (activeEditor.offsetWidth / 2);
-    const offsetTop = activeEditor.offsetTop || 16;
 
     // Build screen watermark items:
-    // Exactly 2 watermark names per page (one top half at 28%, one bottom half at 72%)
+    // Exactly 2 watermark names per page (one top half at 28%, one bottom half at 68%)
     // Strictly NO watermarks outside page boundaries
     let screenItemsHtml = '<div class="watermark-screen-layer" aria-hidden="true">';
     for (let p = 0; p < numPages; p++) {
-        const top1 = Math.round(offsetTop + p * pageHeight + pageHeight * 0.28);
-        const top2 = Math.round(offsetTop + p * pageHeight + pageHeight * 0.72);
+        const top1 = Math.round(p * pageHeight + pageHeight * 0.28);
+        const top2 = Math.round(p * pageHeight + pageHeight * 0.68);
         screenItemsHtml += `<div class="watermark-item" style="top:${top1}px; left:${centerX}px;">${escapeHtml(wmText)}</div>`;
         screenItemsHtml += `<div class="watermark-item" style="top:${top2}px; left:${centerX}px;">${escapeHtml(wmText)}</div>`;
     }
@@ -5310,14 +4697,14 @@ function toggleWatermark() {
         editorArea.appendChild(wmEl);
     }
 
-    const isWatermarked = document.body.classList.contains('watermarked') || 
-                          richEditor.classList.contains('watermarked') || 
-                          (editorArea && editorArea.classList.contains('watermarked')) ||
-                          (wmEl && wmEl.style.display !== 'none' && (wmEl.getAttribute('data-watermark') || wmEl.textContent.trim().length > 0));
+    const isWatermarked = document.body.classList.contains('watermarked') ||
+        richEditor.classList.contains('watermarked') ||
+        (editorArea && editorArea.classList.contains('watermarked')) ||
+        (wmEl && wmEl.style.display !== 'none' && (wmEl.getAttribute('data-watermark') || wmEl.textContent.trim().length > 0));
 
-    const currentText = (wmEl && (wmEl.getAttribute('data-watermark') || wmEl.textContent.trim())) || 
-                        richEditor.getAttribute('data-watermark') || 
-                        "CONFIDENTIAL";
+    const currentText = (wmEl && (wmEl.getAttribute('data-watermark') || wmEl.textContent.trim())) ||
+        richEditor.getAttribute('data-watermark') ||
+        "CONFIDENTIAL";
 
     if (isWatermarked) {
         document.body.classList.remove('watermarked');
@@ -5546,9 +4933,9 @@ function changePaperSize(val) {
         paperSelect.value = val;
     }
     const valClean = (val || (paperSelect ? paperSelect.value : 'a4')).toLowerCase();
-    
+
     const paperClasses = ['paper-letter', 'paper-a4', 'paper-legal', 'paper-a3', 'paper-a5', 'paper-executive', 'paper-full'];
-    
+
     if (richEditor) {
         paperClasses.forEach(c => richEditor.classList.remove(c));
         richEditor.classList.add(`paper-${valClean}`);
@@ -5557,7 +4944,7 @@ function changePaperSize(val) {
         paperClasses.forEach(c => plainEditor.classList.remove(c));
         plainEditor.classList.add(`paper-${valClean}`);
     }
-    
+
     const labels = {
         letter: 'Letter (8.5" × 11")',
         a4: 'A4 (210 × 297 mm)',
@@ -5687,7 +5074,7 @@ async function loadGifs(category = 'trending', query = '', isRefresh = false) {
 
     // Determine query or category
     const searchTerm = query.trim() || category;
-    
+
     // First render curated list immediately for zero delay
     let fallbackList = CURATED_GIFS[category] || CURATED_GIFS.trending;
     if (query.trim()) {
@@ -5784,9 +5171,9 @@ function changeMargin(val) {
         marginSelect.value = val;
     }
     const valClean = (val || (marginSelect ? marginSelect.value : 'normal')).toLowerCase();
-    
+
     const marginClasses = ['margin-normal', 'margin-narrow', 'margin-moderate', 'margin-wide', 'margin-none', 'margin-zero'];
-    
+
     if (richEditor) {
         marginClasses.forEach(c => richEditor.classList.remove(c));
         richEditor.classList.add(`margin-${valClean}`);
@@ -5795,7 +5182,7 @@ function changeMargin(val) {
         marginClasses.forEach(c => plainEditor.classList.remove(c));
         plainEditor.classList.add(`margin-${valClean}`);
     }
-    
+
     const labels = {
         normal: 'Normal (1")',
         narrow: 'Narrow (0.5")',
@@ -5871,12 +5258,12 @@ function toggleFullscreen() {
     const isFull = document.body.classList.toggle('fullscreen-mode');
     if (isFull) {
         if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(() => {});
+            document.documentElement.requestFullscreen().catch(() => { });
         }
         showToast("Fullscreen Focus Mode (Click Fullscreen or Esc to exit)");
     } else {
         if (document.fullscreenElement && document.exitFullscreen) {
-            document.exitFullscreen().catch(() => {});
+            document.exitFullscreen().catch(() => { });
         }
         showToast("Exited Fullscreen Mode");
     }
@@ -5893,7 +5280,7 @@ function applyColorToSelectionRange(range, type, color) {
         try {
             sel.removeAllRanges();
             sel.addRange(range);
-        } catch (e) {}
+        } catch (e) { }
     }
 
     // Attempt browser execCommand with styleWithCSS
@@ -6002,7 +5389,7 @@ function prepareCaretForFutureTyping() {
                 document.execCommand('backColor', false, AppState.activeHiliteColor);
             }
         }
-    } catch (e) {}
+    } catch (e) { }
 }
 
 function applyCaretColorOrHighlight(type, color) {
