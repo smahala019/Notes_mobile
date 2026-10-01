@@ -240,8 +240,24 @@
         right: 0;
     }
 
-    /* Status Bar Mobile Optimizations: Displays User Name Sachin in 1 row, NO scrollbar */
+    /* =====================================================================
+       FIX 1 — Status bar fully visible on mobile (no side cut-off)
+       Adds safe-area-inset for notches, forces full viewport width,
+       shrinks non-critical groups, and keeps cursor-pos + zoom visible.
+       ===================================================================== */
     .status-bar {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        margin: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        /* Honour phone notch / safe-area so edges aren't clipped */
+        padding: 0 env(safe-area-inset-right, 4px) 0 env(safe-area-inset-left, 4px) !important;
+        box-sizing: border-box !important;
         height: 28px !important;
         min-height: 28px !important;
         max-height: 28px !important;
@@ -252,18 +268,13 @@
         overflow-y: hidden !important;
         scrollbar-width: none !important;
         -ms-overflow-style: none !important;
-        padding: 0 6px !important;
-        gap: 4px !important;
+        gap: 6px !important;
         justify-content: space-between !important;
         align-items: center !important;
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        width: 100% !important;
-        box-sizing: border-box !important;
         z-index: 1000 !important;
         -webkit-overflow-scrolling: touch !important;
+        transition: none !important;
+        transform: none !important;
     }
 
     .status-bar::-webkit-scrollbar {
@@ -272,13 +283,20 @@
         height: 0 !important;
     }
 
+    /* Allow groups to shrink so essentials stay visible */
+    .status-left,
+    .status-right {
+        flex-shrink: 1 !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+    }
+
     .status-left {
         display: flex !important;
         align-items: center !important;
-        gap: 4px !important;
+        gap: 6px !important;
         font-size: 11px !important;
         white-space: nowrap !important;
-        flex-shrink: 0 !important;
     }
 
     .status-mid {
@@ -312,10 +330,15 @@
     .status-right {
         display: flex !important;
         align-items: center !important;
-        gap: 4px !important;
+        gap: 6px !important;
         font-size: 11px !important;
         white-space: nowrap !important;
+    }
+
+    /* Make sure cursor-pos is never truncated */
+    #cursor-pos {
         flex-shrink: 0 !important;
+        white-space: nowrap !important;
     }
 
     #view-mode {
@@ -333,12 +356,17 @@
     .status-zoom-container {
         display: flex !important;
         align-items: center !important;
-        gap: 2px !important;
+        flex-shrink: 0 !important;
+        gap: 4px !important;
     }
 
+    /* Make sure zoom value stays visible */
     #status-zoom-val {
+        flex-shrink: 0 !important;
+        white-space: nowrap !important;
+        min-width: 38px !important;
+        text-align: right !important;
         font-size: 11px !important;
-        min-width: auto !important;
         padding: 1px 3px !important;
     }
 
@@ -376,9 +404,25 @@
     }
 }
 
+/* On phones ≤ 480px: hide non-essential middle copyright text
+   and word-count so cursor-pos + zoom fit without scrolling */
 @media (max-width: 480px) {
-    #cursor-pos {
+    .status-mid,
+    #word-count,
+    #stat-encoding {
         display: none !important;
+    }
+
+    .status-left,
+    .status-right {
+        gap: 6px !important;
+        font-size: 11px !important;
+    }
+
+    #cursor-pos,
+    #status-zoom-val,
+    #view-mode {
+        font-size: 11px !important;
     }
 
     .tab-name {
@@ -394,6 +438,14 @@
     .win-btn {
         width: 26px;
         height: 26px;
+    }
+}
+
+/* On very narrow phones ≤ 360px: shrink view-mode label too */
+@media (max-width: 360px) {
+    #view-mode {
+        font-size: 10px !important;
+        padding: 1px 3px !important;
     }
 }
 
@@ -465,6 +517,20 @@
     color: #93c5fd !important;
 }
 
+/* Dark theme mobile danger buttons keep red tint, not gray */
+[data-theme="dark"] .tool-btn.tool-danger-btn,
+[data-theme="dark"] .tool-btn.tool-danger-btn:hover {
+    color: #fca5a5 !important;
+    background: rgba(239, 68, 68, 0.18) !important;
+    border-color: rgba(239, 68, 68, 0.50) !important;
+}
+
+[data-theme="dark"] .tool-btn.tool-danger-btn:hover {
+    background: rgba(239, 68, 68, 0.30) !important;
+    color: #fecaca !important;
+    border-color: #f87171 !important;
+}
+
 [data-theme="dark"] .mobile-format-sheet {
     background: #111827 !important;
     border-color: #334155 !important;
@@ -484,4 +550,14 @@
 
 [data-theme="dark"] .sheet-row .btn:hover {
     background: #273549 !important;
+}
+
+/* Mobile format sheet (when shown) — danger buttons inside it
+   were being overridden by [data-theme="dark"] .sheet-row .btn */
+.mobile-format-sheet .btn-danger,
+[data-theme="dark"] .sheet-row .btn.btn-danger,
+[data-theme="dark"] .sheet-row .btn-danger {
+    background: var(--danger-color) !important;
+    color: #ffffff !important;
+    border-color: var(--danger-color) !important;
 }

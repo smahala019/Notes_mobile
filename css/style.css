@@ -515,6 +515,28 @@ body.plain-text-mode #mobile-format-sheet {
     background-color: rgba(239, 68, 68, 0.1);
 }
 
+/* Three-dots dropdown danger option (Delete/Reset File)
+   — dark-theme .dot-option !important color was masking the red */
+[data-theme="dark"] .dot-option.danger {
+    color: #f87171 !important;
+}
+
+[data-theme="dark"] .dot-option.danger:hover {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    color: #fca5a5 !important;
+}
+
+/* Light mode dot-option danger hover on mobile */
+@media (max-width: 768px) {
+    .dot-option.danger {
+        color: var(--danger-color) !important;
+    }
+    .dot-option.danger:hover {
+        background-color: rgba(239, 68, 68, 0.12) !important;
+        color: var(--danger-hover) !important;
+    }
+}
+
 /* --- Menu Bar --- */
 .menu-bar {
     display: flex;

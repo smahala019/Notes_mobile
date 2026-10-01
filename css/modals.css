@@ -184,6 +184,23 @@
     color: #ffffff;
 }
 
+/* Settings modal "Clear Storage" button (btn-danger) — ensure red on mobile */
+@media (max-width: 768px) {
+    .modal-box .btn-danger,
+    .modal-box .btn-danger:hover {
+        background: var(--danger-color) !important;
+        color: #ffffff !important;
+        border-color: var(--danger-color) !important;
+    }
+
+    [data-theme="dark"] .modal-box .btn-danger,
+    [data-theme="dark"] .modal-box .btn-danger:hover {
+        background: var(--danger-color) !important;
+        color: #ffffff !important;
+        border-color: var(--danger-color) !important;
+    }
+}
+
 /* Word Cloud Styles */
 #cloud-container {
     width: 100%;
