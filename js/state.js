@@ -414,7 +414,11 @@ function saveCurrentStateToMemory(showVisual = false) {
     AppDB.setSetting('currentFileId', AppState.currentFileId).catch(() => {});
 
     if (showVisual) {
-        triggerAutoSaveVisual();
+        if (typeof triggerAutoSaveVisual === 'function') {
+            triggerAutoSaveVisual();
+        }
+    } else if (typeof setAutoSaveStatus === 'function') {
+        setAutoSaveStatus('saved');
     }
 }
 
@@ -423,7 +427,7 @@ function saveCurrentStateToMemory(showVisual = false) {
 async function saveAppSettings() {
     try {
         const s = document.getElementById('status-bar');
-        const statusBarVisible = s ? s.style.display !== 'none' : true;
+        const statusBarVisible = s ? (s.style.display !== 'none' && !s.classList.contains('hidden') && !s.classList.contains('status-bar-hidden')) : true;
         const p = document.getElementById('plain-editor');
         const spellcheck = p ? p.spellcheck !== false : true;
 
@@ -454,7 +458,17 @@ async function loadAppSettings() {
             }
             if (typeof settings.statusBar === 'boolean') {
                 const s = document.getElementById('status-bar');
-                if (s) s.style.display = settings.statusBar ? 'flex' : 'none';
+                if (s) {
+                    if (settings.statusBar) {
+                        s.classList.remove('hidden', 'status-bar-hidden');
+                        s.style.display = 'flex';
+                        document.body.classList.remove('hide-statusbar');
+                    } else {
+                        s.classList.add('hidden', 'status-bar-hidden');
+                        s.style.display = 'none';
+                        document.body.classList.add('hide-statusbar');
+                    }
+                }
             }
             if (typeof settings.spellcheck === 'boolean') {
                 const r = document.getElementById('rich-editor');

@@ -64,9 +64,10 @@
                 <div class="dot-option" data-action="export-modal" data-modal-open="export-modal">📤 Export Document...</div>
                 <div class="separator"></div>
                 <div class="dot-option" data-action="print">🖨️ Print Document...<span class="shortcut-hint">Ctrl+P</span></div>
-                <div class="dot-option" data-action="toggle-editor-mode">🔄 Switch Mode (Rich/Plain)</div>
+                <!-- <div class="dot-option" data-action="toggle-editor-mode">🔄 Switch Mode (Rich/Plain)</div> -->
                 <div class="dot-option" data-action="calc-selection">🧮 Quick Calculator</div>
                 <div class="dot-option" data-action="open-wordcount-modal" data-modal-open="wordcount-modal">📊 Document Statistics...</div>
+                <div class="dot-option" data-action="toggle-status">📊 Toggle Status Bar</div>
                 <div class="separator"></div>
                 <div class="dot-option" data-action="open-settings" data-modal-open="settings-modal">⚙️ Settings...</div>
                 <div class="separator"></div>
@@ -486,10 +487,10 @@
                     <span style="font-size:13px; font-weight:700;">$</span>
                     <span>Currency</span>
                 </button>
-                <button class="tool-btn" id="tool-mode-toggle" data-action="toggle-editor-mode" title="Switch Rich / Plain Mode (Notepad)">
+                <!-- <button class="tool-btn" id="tool-mode-toggle" data-action="toggle-editor-mode" title="Switch Rich / Plain Mode (Notepad)">
                     <span style="font-size:11px; font-weight:700;">Mode</span>
                     <span>Rich/Plain</span>
-                </button>
+                </button> -->
                 <button class="tool-btn" id="tool-stats" data-modal-open="wordcount-modal" title="Document Statistics & Word Count">
                     <svg viewBox="0 0 24 24" width="16" height="16"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z" fill="currentColor"/></svg>
                     <span>Stats</span>
@@ -792,7 +793,7 @@
                 <span class="status-copyright-legal">All Rights Reserved &copy; <span id="status-current-year">2026</span> &bull; </span><span class="status-copyright-author"><span class="status-copyright-madewith">Made with </span><span class="heart-icon" style="color:#ef4444; display:inline-block;">❤️</span> <strong class="author-name">Sachin</strong></span>
             </div>
             <div class="status-right" style="display:flex; align-items:center; gap:10px;">
-                <span id="view-mode" class="clickable-status" title="Click to toggle Rich / Plain Text Mode" data-action="toggle-mode">Mode: Rich Text</span>
+                <!-- <span id="view-mode" class="clickable-status" title="Click to toggle Rich / Plain Text Mode" data-action="toggle-mode">Mode: Rich Text</span> -->
                 <span id="stat-encoding">UTF-8</span>
                 <div class="status-zoom-container" style="display:flex; align-items:center; gap:5px;" title="Zoom View Scale (25% - 800% MS Word)">
                     <span id="status-zoom-val" class="clickable-status" style="font-weight:600; min-width:38px; text-align:right;">100%</span>
@@ -1338,19 +1339,21 @@
 
     <!-- Unified 3-in-1 Recent & Closed Files Modal -->
     <div class="modal-overlay" id="recent-closed-modal">
-        <div class="modal-box modal-md">
+        <div class="modal-box modal-md recent-modal-box">
             <div class="modal-header">
-                <span>Recent & Closed Documents</span>
+                <span>🕒 Recent & Closed Documents</span>
                 <span class="modal-close-btn" data-modal-close="recent-closed-modal">✕</span>
             </div>
-            <div class="modal-body" style="padding:16px;">
-                <div style="display:flex; gap:8px; margin-bottom:12px; align-items:center;">
+            <div class="modal-body recent-modal-body" style="padding:16px;">
+                <div class="recent-modal-toolbar">
                     <input type="text" id="search-recent-closed" class="form-input" placeholder="Search recent & closed files..." style="flex:1;">
-                    <button class="btn btn-primary" id="btn-reopen-all-closed" style="padding:6px 12px; font-size:12px; white-space:nowrap;">Reopen All Closed</button>
-                    <button class="btn btn-secondary" id="btn-clear-history" style="padding:6px 12px; font-size:12px; white-space:nowrap;">Clear History</button>
+                    <div class="recent-toolbar-actions">
+                        <button class="btn btn-primary" id="btn-reopen-all-closed" style="white-space:nowrap;">Reopen All Closed</button>
+                        <button class="btn btn-secondary" id="btn-clear-history" style="white-space:nowrap;">Clear History</button>
+                    </div>
                 </div>
                 <div style="font-size:11px; color:var(--text-secondary); margin-bottom:8px;">
-                    Hover over any document to view preview & details. Click to open with full content preserved.
+                    Hover over or tap any document to view preview & details. Click to open with full content preserved.
                 </div>
                 <div id="recent-closed-list" class="recent-closed-list">
                     <!-- Populated dynamically via js/ui.js -->
@@ -1362,11 +1365,13 @@
                 <button class="btn" data-modal-close="recent-closed-modal">Close</button>
             </div>
         </div>
+        <!-- Non-clipping Global Floating Preview Card (Escapes Scroll Container) -->
+        <div id="recent-floating-preview" class="recent-floating-preview"></div>
     </div>
 
     <!-- About Modal -->
     <div class="modal-overlay" id="about-modal">
-        <div class="modal-box modal-md" style="max-width: 560px;">
+        <div class="modal-box modal-md about-modal-box" style="max-width: 580px;">
             <div class="modal-header">
                 <span style="display:flex; align-items:center; gap:8px;">
                     <span>📝</span>
@@ -1374,11 +1379,11 @@
                 </span>
                 <span class="modal-close-btn" data-modal-close="about-modal">✕</span>
             </div>
-            <div class="modal-body" style="padding: 20px;">
+            <div class="modal-body about-modal-body" style="padding: 20px;">
                 <div style="text-align: center; margin-bottom: 16px;">
                     <div style="font-size: 38px; line-height: 1; margin-bottom: 8px;">📝</div>
                     <h3 style="margin: 0 0 4px 0; color: var(--accent-color); font-size: 20px; font-weight: 700;">Ultimate Web Notepad</h3>
-                    <p style="font-size: 12px; color: var(--text-secondary); margin: 0 0 8px 0; letter-spacing: 0.5px;">MS Word & Notepad Suite &bull; Modern Edition v14.0</p>
+                    <p style="font-size: 12px; color: var(--text-secondary); margin: 0 0 8px 0; letter-spacing: 0.5px;">MS Word & Notepad Suite &bull; Modern Edition v15.0</p>
                     <div style="display: inline-block; padding: 4px 14px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 12px; font-size: 12px; font-weight: 600; color: var(--accent-color);">
                         Engineered with <span style="color:#ef4444;">❤️</span> by Sachin
                     </div>
@@ -1388,30 +1393,30 @@
                     A next-generation, high-performance web-based word processor and coding environment. Engineered to run completely locally in your browser with zero installation across mobile, tablet, laptop, and desktop.
                 </p>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; font-size: 12px;">
-                    <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-color);">
+                <div class="about-feature-grid">
+                    <div class="about-feature-card">
+                        <b style="color: var(--accent-color); display: block; margin-bottom: 4px;">⚡ Real-Time Auto-Save</b>
+                        Live status indicator: yellow "Waiting.." during user action and green "Saved" when idle, with zero tab conflict.
+                    </div>
+                    <div class="about-feature-card">
+                        <b style="color: var(--accent-color); display: block; margin-bottom: 4px;">🕒 Recent & Closed Manager</b>
+                        Unified 3-in-1 history with non-clipping floating hover preview cards and responsive mobile list.
+                    </div>
+                    <div class="about-feature-card">
+                        <b style="color: var(--accent-color); display: block; margin-bottom: 4px;">🎬 Animated GIF Studio</b>
+                        Curated & live GIPHY API GIF search with dark mode and responsive mobile grid.
+                    </div>
+                    <div class="about-feature-card">
+                        <b style="color: var(--accent-color); display: block; margin-bottom: 4px;">🛡️ Safe Destruction Guards</b>
+                        Confirmation warnings for Clear All and Clear Styles with complete Ctrl+Z undo restoration.
+                    </div>
+                    <div class="about-feature-card">
                         <b style="color: var(--accent-color); display: block; margin-bottom: 4px;">📄 Authentic Page Setup</b>
-                        A4 (default), Letter, Legal, A3, Margins, Orientation, Watermarks & Clean Print.
+                        A4 (default), Letter, Legal, Margins, Orientations, Custom Watermarks & Clean Print Engine.
                     </div>
-                    <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-color);">
-                        <b style="color: var(--accent-color); display: block; margin-bottom: 4px;">• Bullet & Numbering</b>
-                        8 Bullet styles, 7 Numbering formats & viewport-safe dropdowns.
-                    </div>
-                    <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-color);">
-                        <b style="color: var(--accent-color); display: block; margin-bottom: 4px;">🎨 Shape & Paint Studio</b>
-                        20+ Shapes, Custom Shape Creator, Canvas Paint & Multi-Column Layout.
-                    </div>
-                    <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-color);">
-                        <b style="color: var(--accent-color); display: block; margin-bottom: 4px;">🧮 Math Solver f(x)</b>
-                        Equations, powers, roots, log, sin, cos & document insertion.
-                    </div>
-                    <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-color);">
-                        <b style="color: var(--accent-color); display: block; margin-bottom: 4px;">📱 Mobile & Touch Ready</b>
-                        Fluid swipe, hidden scrollbars, mobile format sheet & responsive status bar.
-                    </div>
-                    <div style="padding: 10px; background: var(--bg-secondary); border-radius: 6px; border: 1px solid var(--border-color);">
-                        <b style="color: var(--accent-color); display: block; margin-bottom: 4px;">💾 Offline & Auto-Save</b>
-                        IndexedDB persistence, multi-tab workspace, voice typing & Dark/Light mode.
+                    <div class="about-feature-card">
+                        <b style="color: var(--accent-color); display: block; margin-bottom: 4px;">🎨 Paint, Shapes & Math</b>
+                        20+ Shapes, Canvas Paint Studio, Multi-Column Layout, Math Solver f(x) & Voice Typing.
                     </div>
                 </div>
 
@@ -1887,18 +1892,20 @@ Bob, Designer, UI/UX, $88000"></textarea>
 
     <!-- Animated GIF Modal -->
     <div class="modal-overlay" id="gif-modal">
-        <div class="modal-box modal-md" style="max-width: 640px;">
+        <div class="modal-box modal-md gif-modal-box">
             <div class="modal-header">
                 <span style="display:flex; align-items:center; gap:8px;">🎬 Insert Animated GIF</span>
                 <span class="modal-close-btn" data-modal-close="gif-modal">✕</span>
             </div>
-            <div class="modal-body">
-                <div style="display:flex; gap:8px; margin-bottom:12px;">
-                    <input type="text" id="gif-search-input" placeholder="Search animated GIFs (e.g. clap, cat, celebrate, wow, dancing)..." style="flex:1; padding:8px 12px; border:1px solid var(--border-color); border-radius:6px; background:var(--input-bg); color:var(--text-primary); font-size:13px;">
-                    <button class="btn btn-primary" id="btn-gif-search" style="padding:8px 16px;">Search</button>
-                    <button class="btn" id="btn-gif-refresh" title="Auto-Update / Fetch Fresh GIFs" style="padding:8px 12px;">🔄 Refresh</button>
+            <div class="modal-body gif-modal-body">
+                <div class="gif-search-container">
+                    <input type="text" id="gif-search-input" class="form-input gif-search-input" placeholder="Search animated GIFs (e.g. clap, cat, celebrate, wow, dancing)...">
+                    <div class="gif-search-actions">
+                        <button class="btn btn-primary" id="btn-gif-search">Search</button>
+                        <button class="btn" id="btn-gif-refresh" title="Auto-Update / Fetch Fresh GIFs">🔄 Refresh</button>
+                    </div>
                 </div>
-                <div class="gif-categories" id="gif-categories" style="display:flex; gap:6px; overflow-x:auto; padding-bottom:8px; margin-bottom:12px;">
+                <div class="gif-categories" id="gif-categories">
                     <button class="btn btn-sm gif-cat-btn active" data-gif-cat="trending">🔥 Trending</button>
                     <button class="btn btn-sm gif-cat-btn" data-gif-cat="reactions">😲 Reactions</button>
                     <button class="btn btn-sm gif-cat-btn" data-gif-cat="celebrate">🎉 Celebrate</button>
@@ -1908,12 +1915,12 @@ Bob, Designer, UI/UX, $88000"></textarea>
                     <button class="btn btn-sm gif-cat-btn" data-gif-cat="love">❤️ Love</button>
                     <button class="btn btn-sm gif-cat-btn" data-gif-cat="animals">🐱 Animals</button>
                 </div>
-                <div id="gif-grid" class="gif-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(130px, 1fr)); gap:10px; max-height:360px; overflow-y:auto; padding:4px;">
+                <div id="gif-grid" class="gif-grid">
                     <!-- Rendered dynamically -->
                 </div>
             </div>
-            <div class="modal-footer">
-                <span id="gif-status-text" style="font-size:12px; color:var(--text-secondary); margin-right:auto;">Click any GIF to insert</span>
+            <div class="modal-footer gif-modal-footer">
+                <span id="gif-status-text" class="gif-status-text">Click any GIF to insert</span>
                 <button class="btn" data-modal-close="gif-modal">Close</button>
             </div>
         </div>

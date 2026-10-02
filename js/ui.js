@@ -731,12 +731,7 @@ function handleAction(action, e) {
             toggleTheme();
             break;
         case 'toggle-status': {
-            const s = document.getElementById('status-bar');
-            if (s) {
-                s.style.display = (s.style.display === 'none' ? 'flex' : 'none');
-                updateMenuUI();
-                if (typeof saveAppSettings === 'function') saveAppSettings();
-            }
+            toggleStatusBar();
             break;
         }
         case 'toggle-wrap': {
@@ -1118,14 +1113,20 @@ function renderRecentClosedModal(filterText = '') {
                         <span class="file-status-badge ${badgeClass}">${badgeText}</span>
                     </div>
                     <span class="closed-file-meta">${timeText} • ${wordCount} words (${charCount} chars)</span>
+                    <span class="closed-file-snippet-inline" title="${snippet}">"${snippet}..."</span>
                 </div>
             </div>
             <div class="closed-file-actions">
-                <button class="closed-file-reopen-btn" style="min-width:65px;">${actionText}</button>
+                <button class="closed-file-reopen-btn" style="min-width:60px;">${actionText}</button>
                 <button class="closed-file-del-btn" title="Remove from history">✕</button>
             </div>
-            <!-- Rich Hover Tooltip Card -->
-            <div class="item-hover-tooltip">
+        `;
+
+        // Safe Non-Clipping Floating Preview Controller
+        const floating = document.getElementById('recent-floating-preview');
+        const showFloatingPreview = () => {
+            if (!floating || window.innerWidth <= 600) return;
+            floating.innerHTML = `
                 <div class="tooltip-title">${file.name}</div>
                 <div class="tooltip-meta">
                     <b>Status:</b> ${badgeText}<br>
@@ -1133,11 +1134,47 @@ function renderRecentClosedModal(filterText = '') {
                     <b>Statistics:</b> ${wordCount} words • ${charCount} chars • ${file.isRichText ? 'Rich Text' : 'Plain Text'}
                 </div>
                 <div class="tooltip-snippet">"${snippet}..."</div>
-            </div>
-        `;
+            `;
+            floating.classList.add('show');
+            positionFloatingPreview();
+        };
+
+        const positionFloatingPreview = () => {
+            if (!floating || !floating.classList.contains('show')) return;
+            const rect = item.getBoundingClientRect();
+            const fRect = floating.getBoundingClientRect();
+            
+            // Prefer placing above item; flip below if not enough viewport room
+            let top = rect.top - fRect.height - 8;
+            if (top < 10) {
+                top = rect.bottom + 8;
+            }
+            if (top + fRect.height > window.innerHeight - 10) {
+                top = window.innerHeight - fRect.height - 10;
+            }
+            
+            // Horizontal clamp inside window bounds
+            let left = rect.left;
+            if (left + fRect.width > window.innerWidth - 12) {
+                left = window.innerWidth - fRect.width - 12;
+            }
+            if (left < 12) left = 12;
+            
+            floating.style.top = `${top}px`;
+            floating.style.left = `${left}px`;
+        };
+
+        const hideFloatingPreview = () => {
+            if (floating) floating.classList.remove('show');
+        };
+
+        item.addEventListener('mouseenter', showFloatingPreview);
+        item.addEventListener('mousemove', positionFloatingPreview);
+        item.addEventListener('mouseleave', hideFloatingPreview);
 
         // Click on item or open/reopen button
         const handleOpen = () => {
+            hideFloatingPreview();
             if (status === 'closed') {
                 reopenSpecificRecentFile(file.id, file);
             } else if (status === 'open') {
@@ -1158,12 +1195,19 @@ function renderRecentClosedModal(filterText = '') {
 
         item.querySelector('.closed-file-del-btn').onclick = (e) => {
             e.stopPropagation();
+            hideFloatingPreview();
             deleteClosedFile(file.id);
             renderRecentClosedModal(filterText);
         };
 
         list.appendChild(item);
     });
+
+    // Hide floating preview when scrolling the recent list
+    list.onscroll = () => {
+        const floating = document.getElementById('recent-floating-preview');
+        if (floating) floating.classList.remove('show');
+    };
 }
 
 function formatRelativeTime(ts) {
@@ -1218,9 +1262,37 @@ function updateMenuUI() {
     const statusCheck = document.getElementById('check-status');
     const statusBar = document.getElementById('status-bar');
     if (statusCheck && statusBar) {
-        statusCheck.classList.toggle('visible', statusBar.style.display !== 'none');
+        const isVisible = statusBar.style.display !== 'none' && !statusBar.classList.contains('hidden') && !statusBar.classList.contains('status-bar-hidden');
+        statusCheck.classList.toggle('visible', isVisible);
     }
 }
+
+// --- Status Bar Controller (Mobile & Desktop Responsive Toggle) ---
+
+function toggleStatusBar(forceState = null) {
+    const s = document.getElementById('status-bar');
+    if (!s) return;
+    const isCurrentlyHidden = s.classList.contains('hidden') || s.classList.contains('status-bar-hidden') || s.style.display === 'none';
+    const shouldShow = (forceState !== null) ? !!forceState : isCurrentlyHidden;
+
+    if (shouldShow) {
+        s.classList.remove('hidden', 'status-bar-hidden');
+        s.style.display = 'flex';
+        document.body.classList.remove('hide-statusbar');
+    } else {
+        s.classList.add('hidden', 'status-bar-hidden');
+        s.style.display = 'none';
+        document.body.classList.add('hide-statusbar');
+    }
+
+    if (AppState.settings) {
+        AppState.settings.statusBar = shouldShow;
+    }
+    updateMenuUI();
+    if (typeof saveAppSettings === 'function') saveAppSettings();
+    showToast(shouldShow ? "Status bar enabled" : "Status bar hidden");
+}
+window.toggleStatusBar = toggleStatusBar;
 
 // --- Toast System ---
 
@@ -1238,13 +1310,72 @@ function showToast(msg) {
     }, 2400);
 }
 
-// Auto-save visual indicator
-function triggerAutoSaveVisual() {
-    const indicator = document.getElementById('auto-save-status');
-    if (!indicator || !AppState.autoSaveEnabled) return;
+// --- Real-Time Auto-Save Visual Indicator Controller ---
+// "Waiting.." in yellow during typing/action, "Saved" in green when idle
 
-    indicator.style.opacity = '1';
-    setTimeout(() => {
-        indicator.style.opacity = '0';
-    }, 1800);
+function setAutoSaveStatus(state = 'saved') {
+    const indicator = document.getElementById('auto-save-status');
+    if (!indicator) return;
+
+    if (!AppState.autoSaveEnabled) {
+        indicator.className = 'auto-save-indicator status-off';
+        indicator.textContent = 'Auto-Save: OFF';
+        indicator.title = 'Auto-Save is disabled. Click to turn ON.';
+        return;
+    }
+
+    if (state === 'waiting') {
+        indicator.className = 'auto-save-indicator status-waiting';
+        indicator.textContent = 'Waiting..';
+        indicator.title = 'Changes detected... saving automatically.';
+    } else if (state === 'saving') {
+        indicator.className = 'auto-save-indicator status-saving';
+        indicator.textContent = 'Saving...';
+        indicator.title = 'Saving document to background storage...';
+    } else {
+        indicator.className = 'auto-save-indicator status-saved';
+        indicator.textContent = 'Saved';
+        indicator.title = 'All changes saved to storage. Click to save now.';
+    }
 }
+window.setAutoSaveStatus = setAutoSaveStatus;
+
+// Auto-save visual indicator wrapper
+function triggerAutoSaveVisual() {
+    setAutoSaveStatus('saved');
+}
+
+// Initialize interactive clicks on status bar buttons
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Click auto-save indicator: triggers immediate save or toggle
+    const autoSaveIndicator = document.getElementById('auto-save-status');
+    if (autoSaveIndicator) {
+        autoSaveIndicator.addEventListener('click', () => {
+            if (!AppState.autoSaveEnabled) {
+                AppState.autoSaveEnabled = true;
+                if (typeof saveAppSettings === 'function') saveAppSettings();
+                updateMenuUI();
+                setAutoSaveStatus('saved');
+                showToast("Auto-Save turned ON");
+                return;
+            }
+            if (typeof saveCurrentStateToMemory === 'function') {
+                saveCurrentStateToMemory(true);
+            }
+            setAutoSaveStatus('saved');
+            showToast("Document saved to offline storage");
+        });
+    }
+
+    // 2. Click word count / char count: opens word count statistics modal
+    ['word-count', 'char-count'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.style.cursor = 'pointer';
+            el.title = 'Click to view Document Statistics';
+            el.addEventListener('click', () => {
+                if (typeof openModal === 'function') openModal('wordcount-modal');
+            });
+        }
+    });
+});

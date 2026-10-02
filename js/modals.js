@@ -46,6 +46,10 @@ function closeModal(id) {
     if (modal) {
         modal.style.display = 'none';
     }
+    if (id === 'recent-closed-modal' || !id) {
+        const floating = document.getElementById('recent-floating-preview');
+        if (floating) floating.classList.remove('show');
+    }
 }
 
 function closeAllModals() {
@@ -335,7 +339,7 @@ function initSettingsModal() {
 
     if (statusBarCheck) {
         const statusBar = document.getElementById('status-bar');
-        statusBarCheck.checked = statusBar ? statusBar.style.display !== 'none' : true;
+        statusBarCheck.checked = statusBar ? (statusBar.style.display !== 'none' && !statusBar.classList.contains('hidden') && !statusBar.classList.contains('status-bar-hidden')) : true;
     }
 
     if (autoSaveCheck) {
@@ -388,9 +392,13 @@ function saveSettingsModal() {
     }
 
     if (statusBarCheck) {
-        const statusBar = document.getElementById('status-bar');
-        if (statusBar) {
-            statusBar.style.display = statusBarCheck.checked ? 'flex' : 'none';
+        if (typeof toggleStatusBar === 'function') {
+            toggleStatusBar(statusBarCheck.checked);
+        } else {
+            const statusBar = document.getElementById('status-bar');
+            if (statusBar) {
+                statusBar.style.display = statusBarCheck.checked ? 'flex' : 'none';
+            }
         }
     }
 

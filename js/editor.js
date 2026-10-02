@@ -359,6 +359,10 @@ function loadFileContent(id) {
 
     // 1. ATOMIC SAVE: Save active document's current DOM content before switching
     if (AppState.currentFileId && AppState.currentFileId !== id) {
+        if (typeof autoSaveDebounceTimer !== 'undefined' && autoSaveDebounceTimer) {
+            clearTimeout(autoSaveDebounceTimer);
+            autoSaveDebounceTimer = null;
+        }
         const prevFile = AppState.files.find(f => f.id === AppState.currentFileId);
         if (prevFile) {
             const richEditor = document.getElementById('rich-editor');
@@ -370,6 +374,10 @@ function loadFileContent(id) {
                 } else {
                     prevFile.textContent = plainEditor.value;
                     prevFile.content = plainEditor.value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\n/g, '<br>');
+                }
+                prevFile.updatedAt = Date.now();
+                if (typeof AppDB !== 'undefined' && AppDB.put) {
+                    AppDB.put('files', prevFile).catch(e => console.warn("Atomic switch put error:", e));
                 }
             }
         }
@@ -470,6 +478,13 @@ function loadFileContent(id) {
     updateStats();
     updateMenuUI();
     addRecentFile(targetFile);
+
+    if (typeof AppDB !== 'undefined' && AppDB.setSetting) {
+        AppDB.setSetting('currentFileId', id).catch(() => {});
+    }
+    if (typeof setAutoSaveStatus === 'function') {
+        setAutoSaveStatus('saved');
+    }
 }
 
 // --- Accurate Cursor Position Tracking (Fixed BUG-04) ---
@@ -703,55 +718,94 @@ function syncToolbar() {
 }
 
 function clearSelectionFormatting() {
-    if (!AppState.isRichTextMode) return;
-    pushRichSnapshot();
-    const richEditor = document.getElementById('rich-editor');
-    if (!richEditor) return;
-    richEditor.focus();
-    restoreEditorSelection(false);
-
-    try {
-        document.execCommand('removeFormat', false, null);
-        document.execCommand('unlink', false, null);
-
-        const sel = window.getSelection();
-        if (sel && sel.rangeCount > 0) {
-            const range = sel.getRangeAt(0);
-            if (!range.collapsed) {
-                const fragment = range.cloneContents();
-                const styledNodes = fragment.querySelectorAll('[style], font, b, strong, i, em, u, s, strike, sub, sup');
-                if (styledNodes.length > 0) {
-                    const text = range.toString();
-                    document.execCommand('insertText', false, text);
-                }
-            } else {
-                let node = sel.anchorNode;
-                if (node && node.nodeType === Node.TEXT_NODE) node = node.parentElement;
-                while (node && node !== richEditor && richEditor.contains(node)) {
-                    if (node.tagName === 'SPAN' || node.tagName === 'FONT') {
-                        node.removeAttribute('style');
-                    }
-                    node = node.parentElement;
-                }
-            }
-        }
-
-        try {
-            document.execCommand('formatBlock', false, '<p>');
-        } catch (e) {
-            try { document.execCommand('formatBlock', false, 'p'); } catch (e2) { }
-        }
-
-        updateFontToolbar(AppState.activeFontFamily || "'Segoe UI', sans-serif", 16);
-    } catch (e) {
-        console.warn('Error clearing selection format:', e);
+    if (!AppState.isRichTextMode) {
+        showToast('Style formatting is active in Rich Text mode');
+        return;
     }
 
-    saveEditorSelection();
-    syncToolbar();
-    pushRichSnapshot();
-    saveCurrentStateToMemory();
-    showToast('Formatting cleared');
+    const richEditor = document.getElementById('rich-editor');
+    if (!richEditor) return;
+    restoreEditorSelection(false);
+
+    const sel = window.getSelection();
+    const hasSelection = sel && sel.rangeCount > 0 && !sel.getRangeAt(0).collapsed;
+    const confirmPrompt = hasSelection
+        ? "Remove styles and formatting from the selected text?"
+        : "Remove styles and formatting from the entire document?";
+
+    const performFormatClear = () => {
+        pushRichSnapshot();
+        richEditor.focus();
+        restoreEditorSelection(false);
+
+        try {
+            if (hasSelection) {
+                document.execCommand('removeFormat', false, null);
+                document.execCommand('unlink', false, null);
+
+                const currentSel = window.getSelection();
+                if (currentSel && currentSel.rangeCount > 0) {
+                    const range = currentSel.getRangeAt(0);
+                    // Safely strip inline styles from text wrappers without destroying images/tables
+                    const container = range.commonAncestorContainer;
+                    const elements = (container.nodeType === Node.ELEMENT_NODE ? container : container.parentElement)?.querySelectorAll('span, font, b, strong, i, em, u, s, strike') || [];
+                    elements.forEach(el => {
+                        if (range.intersectsNode(el) && !el.closest('table, svg, .equation-bar, .code-block-container')) {
+                            el.removeAttribute('style');
+                        }
+                    });
+                }
+            } else {
+                // Document-wide formatting reset
+                const savedHtml = richEditor.innerHTML;
+                document.execCommand('selectAll', false, null);
+                document.execCommand('removeFormat', false, null);
+                document.execCommand('unlink', false, null);
+
+                // Strip style attributes from inline formatting tags while preserving structural tags
+                richEditor.querySelectorAll('span, font, b, strong, i, em, u, s, strike').forEach(el => {
+                    if (!el.closest('table, svg, .equation-bar, .code-block-container, .doc-callout')) {
+                        el.removeAttribute('style');
+                    }
+                });
+
+                // Collapse selection to start
+                const curSel = window.getSelection();
+                if (curSel) curSel.collapseToStart();
+            }
+
+            try {
+                document.execCommand('formatBlock', false, '<p>');
+            } catch (e) {
+                try { document.execCommand('formatBlock', false, 'p'); } catch (e2) { }
+            }
+
+            updateFontToolbar(AppState.activeFontFamily || "'Segoe UI', sans-serif", 16);
+        } catch (e) {
+            console.warn('Error clearing format:', e);
+        }
+
+        saveEditorSelection();
+        syncToolbar();
+        pushRichSnapshot();
+        saveCurrentStateToMemory(true);
+        if (typeof setAutoSaveStatus === 'function') {
+            setAutoSaveStatus('saved');
+        }
+        showToast('Styles cleared (Ctrl+Z to undo)');
+    };
+
+    if (typeof showCustomConfirm === 'function') {
+        showCustomConfirm(confirmPrompt, (confirmed) => {
+            if (confirmed) {
+                performFormatClear();
+            }
+        });
+    } else {
+        if (confirm(confirmPrompt)) {
+            performFormatClear();
+        }
+    }
 }
 
 function replacePlainTextSelection(textarea, start, end, text, newCaret = null) {
@@ -4551,22 +4605,48 @@ function selectAllText() {
 }
 
 function clearEditorContent() {
-    if (AppState.isRichTextMode) {
-        pushRichSnapshot();
-        const richEditor = document.getElementById('rich-editor');
-        if (richEditor) richEditor.innerHTML = '';
-        pushRichSnapshot();
+    const richEditor = document.getElementById('rich-editor');
+    const plainEditor = document.getElementById('plain-editor');
+    const hasContent = AppState.isRichTextMode
+        ? (richEditor && (richEditor.innerText.trim().length > 0 || richEditor.querySelectorAll('img, table, canvas, svg').length > 0))
+        : (plainEditor && plainEditor.value.trim().length > 0);
+
+    if (!hasContent) {
+        showToast("Document is already empty");
+        return;
+    }
+
+    const performClear = () => {
+        if (AppState.isRichTextMode) {
+            pushRichSnapshot();
+            if (richEditor) richEditor.innerHTML = '';
+            pushRichSnapshot();
+        } else {
+            if (plainEditor) {
+                pushHistory(plainEditor.value);
+                plainEditor.value = '';
+                pushHistory('');
+            }
+        }
+        saveCurrentStateToMemory(true);
+        updateStats();
+        if (typeof setAutoSaveStatus === 'function') {
+            setAutoSaveStatus('saved');
+        }
+        showToast("Cleared document content (Ctrl+Z to undo)");
+    };
+
+    if (typeof showCustomConfirm === 'function') {
+        showCustomConfirm("Are you sure you want to clear all document content? This will erase all text and elements.", (confirmed) => {
+            if (confirmed) {
+                performClear();
+            }
+        });
     } else {
-        const plainEditor = document.getElementById('plain-editor');
-        if (plainEditor) {
-            pushHistory(plainEditor.value);
-            plainEditor.value = '';
-            pushHistory('');
+        if (confirm("Are you sure you want to clear all document content?")) {
+            performClear();
         }
     }
-    saveCurrentStateToMemory();
-    updateStats();
-    showToast("Cleared document content");
 }
 
 function isCaretInCodeBlock() {

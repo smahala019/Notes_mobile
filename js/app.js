@@ -114,6 +114,12 @@ function initEditorEvents() {
     const onInputHandler = () => {
         if (AppState.isSwitchingFiles) return;
         updateStats();
+
+        // Real-Time Auto-Save indicator: Immediately show "Waiting.." (yellow)
+        if (typeof setAutoSaveStatus === 'function') {
+            setAutoSaveStatus('waiting');
+        }
+
         if (!AppState.isRichTextMode) {
             pushHistory(plainEditor.value);
         } else {
@@ -151,9 +157,12 @@ function initEditorEvents() {
         if (autoSaveDebounceTimer) clearTimeout(autoSaveDebounceTimer);
         autoSaveDebounceTimer = setTimeout(() => {
             if (!AppState.isSwitchingFiles) {
-                saveCurrentStateToMemory(false);
+                saveCurrentStateToMemory(true);
+                if (typeof setAutoSaveStatus === 'function') {
+                    setAutoSaveStatus('saved');
+                }
             }
-        }, 800);
+        }, 750);
         if (!AppState.isWordWrap && typeof ensureCaretVisible === 'function') {
             ensureCaretVisible();
         }

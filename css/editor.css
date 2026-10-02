@@ -423,6 +423,25 @@ body.no-wrap-active .editor-container {
    Unified Recent & Closed Files Modal - 3-in-1 List & Hover Previews
    ========================================================================== */
 
+.recent-modal-toolbar {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+}
+
+.recent-modal-toolbar .form-input {
+    flex: 1 1 200px;
+    min-width: 150px;
+}
+
+.recent-toolbar-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
 .recent-closed-list {
     max-height: 380px;
     overflow-y: auto;
@@ -443,6 +462,7 @@ body.no-wrap-active .editor-container {
     border-radius: var(--radius-md);
     transition: background 0.15s, border-color 0.15s, transform 0.1s;
     cursor: pointer;
+    gap: 10px;
 }
 
 .recent-closed-item:hover {
@@ -460,6 +480,7 @@ body.no-wrap-active .editor-container {
     display: inline-flex;
     align-items: center;
     gap: 3px;
+    flex-shrink: 0;
 }
 
 .badge-closed {
@@ -480,24 +501,28 @@ body.no-wrap-active .editor-container {
     border: 1px solid rgba(59, 130, 246, 0.25);
 }
 
-/* Rich hover preview card */
-.item-hover-tooltip {
+/* Global Floating Preview Card - Escapes scroll container clipping */
+.recent-floating-preview {
     display: none;
-    position: absolute;
-    bottom: calc(100% + 8px);
-    left: 12px;
-    background: var(--win-bg);
+    position: fixed;
+    background: var(--modal-bg, var(--win-bg));
     color: var(--text-primary);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    padding: 10px 14px;
+    border-radius: var(--radius-md, 8px);
+    padding: 12px 15px;
     font-size: 12px;
-    box-shadow: var(--shadow-lg), 0 8px 24px rgba(0, 0, 0, 0.18);
-    z-index: 9999;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.12);
+    z-index: 100000;
     pointer-events: none;
-    min-width: 250px;
-    max-width: 360px;
+    width: 320px;
+    max-width: calc(100vw - 32px);
+    backdrop-filter: blur(8px);
     animation: fadeInTooltip 0.15s ease-out;
+    box-sizing: border-box;
+}
+
+.recent-floating-preview.show {
+    display: block;
 }
 
 @keyframes fadeInTooltip {
@@ -505,42 +530,127 @@ body.no-wrap-active .editor-container {
         opacity: 0;
         transform: translateY(4px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
     }
 }
 
-.recent-closed-item:hover .item-hover-tooltip {
-    display: block;
-}
-
 .tooltip-title {
     font-weight: 700;
     font-size: 13px;
     color: var(--text-primary);
-    margin-bottom: 4px;
+    margin-bottom: 5px;
     word-break: break-all;
 }
 
 .tooltip-meta {
     font-size: 11px;
     color: var(--text-secondary);
-    line-height: 1.4;
+    line-height: 1.45;
 }
 
 .tooltip-snippet {
-    margin-top: 6px;
+    margin-top: 8px;
     padding-top: 6px;
     border-top: 1px dashed var(--border-color);
     font-family: 'Consolas', monospace;
     font-size: 11px;
     color: var(--text-muted);
-    max-height: 50px;
+    max-height: 60px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: pre-wrap;
+    line-height: 1.4;
+}
+
+/* Mobile inline snippet (visible on touch devices where hover preview is impractical) */
+.closed-file-snippet-inline {
+    display: none;
+}
+
+@media (max-width: 600px) {
+    .recent-modal-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+    .recent-modal-toolbar .form-input {
+        width: 100%;
+        flex: unset;
+        box-sizing: border-box;
+    }
+    .recent-toolbar-actions {
+        display: flex;
+        gap: 6px;
+        width: 100%;
+    }
+    .recent-toolbar-actions .btn {
+        flex: 1 1 50%;
+        justify-content: center;
+        text-align: center;
+        font-size: 12px;
+        padding: 7px 8px;
+    }
+    .recent-closed-list {
+        max-height: min(340px, 45vh);
+    }
+    .recent-closed-item {
+        padding: 8px 10px;
+        gap: 8px;
+    }
+    .closed-file-info {
+        gap: 8px;
+        min-width: 0;
+    }
+    .closed-file-title {
+        font-size: 13px;
+        max-width: 130px;
+    }
+    .closed-file-reopen-btn {
+        padding: 5px 9px !important;
+        font-size: 11px !important;
+        min-width: 50px !important;
+    }
+    .closed-file-del-btn {
+        padding: 4px 6px !important;
+        font-size: 13px !important;
+    }
+    .closed-file-snippet-inline {
+        display: block;
+        font-size: 10.5px;
+        color: var(--text-muted);
+        margin-top: 3px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 190px;
+    }
+    .recent-floating-preview {
+        display: none !important;
+    }
+}
+
+/* Embedded Animated GIF styling in document */
+.editor-gif {
+    max-width: min(360px, 100%);
+    width: auto;
+    height: auto;
+    border-radius: var(--radius-md, 8px);
+    display: block;
+    margin: 14px auto;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    cursor: pointer;
+    transition: outline 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.editor-gif:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+
+.editor-gif.selected-img {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 3px;
 }
 
 /* --- MS Word Callout Note Box --- */

@@ -24,6 +24,12 @@
     transition: var(--transition);
 }
 
+.status-bar.hidden,
+.status-bar.status-bar-hidden,
+body.hide-statusbar .status-bar {
+    display: none !important;
+}
+
 .status-left,
 .status-right {
     display: flex;
@@ -77,22 +83,98 @@
 
 .auto-save-indicator {
     font-size: 11px;
-    color: var(--success-color);
-    font-weight: 500;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-    display: flex;
+    font-weight: 600;
+    color: var(--success-color, #16a34a);
+    display: inline-flex;
     align-items: center;
-    gap: 4px;
+    gap: 5px;
+    padding: 2px 7px;
+    border-radius: 12px;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.2s ease;
+    opacity: 1;
 }
 
 .auto-save-indicator::before {
     content: "";
     display: inline-block;
-    width: 6px;
-    height: 6px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;
-    background-color: var(--success-color);
+    background-color: #22c55e;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    flex-shrink: 0;
+}
+
+/* Idle State: Saved (Green) */
+.auto-save-indicator.status-saved,
+.auto-save-indicator:not(.status-waiting):not(.status-saving) {
+    color: #16a34a;
+    background: rgba(34, 197, 94, 0.12);
+}
+
+.auto-save-indicator.status-saved::before,
+.auto-save-indicator:not(.status-waiting):not(.status-saving)::before {
+    background-color: #22c55e;
+    box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+}
+
+/* User Typing / Action State: Waiting (Yellow / Amber) */
+.auto-save-indicator.status-waiting {
+    color: #b45309;
+    background: rgba(245, 158, 11, 0.16);
+}
+
+.auto-save-indicator.status-waiting::before {
+    background-color: #eab308;
+    box-shadow: 0 0 7px rgba(234, 179, 8, 0.6);
+    animation: statusPulseWaiting 1s infinite ease-in-out;
+}
+
+@keyframes statusPulseWaiting {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.35);
+        opacity: 0.65;
+    }
+}
+
+/* Saving Transition State (Blue) */
+.auto-save-indicator.status-saving {
+    color: #2563eb;
+    background: rgba(37, 99, 235, 0.12);
+}
+
+.auto-save-indicator.status-saving::before {
+    background-color: #3b82f6;
+    box-shadow: 0 0 6px rgba(59, 130, 246, 0.5);
+}
+
+/* Disabled State */
+.auto-save-indicator.status-off {
+    color: var(--text-muted);
+    background: var(--hover-color);
+    opacity: 0.7;
+}
+
+.auto-save-indicator.status-off::before {
+    background-color: var(--text-muted);
+    box-shadow: none;
+}
+
+[data-theme="dark"] .auto-save-indicator.status-saved,
+[data-theme="dark"] .auto-save-indicator:not(.status-waiting):not(.status-saving) {
+    color: #4ade80;
+    background: rgba(34, 197, 94, 0.18);
+}
+
+[data-theme="dark"] .auto-save-indicator.status-waiting {
+    color: #fde047;
+    background: rgba(234, 179, 8, 0.22);
 }
 
 /* --- Responsive Breakpoints --- */
@@ -277,6 +359,12 @@
         transform: none !important;
     }
 
+    .status-bar.hidden,
+    .status-bar.status-bar-hidden,
+    body.hide-statusbar .status-bar {
+        display: none !important;
+    }
+
     .status-bar::-webkit-scrollbar {
         display: none !important;
         width: 0 !important;
@@ -375,9 +463,15 @@
         display: none !important;
     }
 
-    #char-count,
-    #auto-save-status {
+    #char-count {
         display: none !important;
+    }
+
+    #auto-save-status {
+        display: inline-flex !important;
+        flex-shrink: 0 !important;
+        font-size: 10px !important;
+        padding: 1px 5px !important;
     }
 
     .form-group {
